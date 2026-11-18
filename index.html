@@ -7,347 +7,291 @@
 <title>LIVE FAMILY</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;overflow:hidden;background:#18251e;color:white;font-family:Arial}
-canvas{display:block;width:100vw;height:100dvh;image-rendering:pixelated}
-.panel{position:fixed;z-index:5;background:#17251eeb;border:2px solid #83a96d;border-radius:9px;padding:9px;box-shadow:0 3px 0 #101a13}
-#profile{top:8px;left:8px;font-size:13px}
-#menu{top:105px;left:8px;display:grid;gap:5px}
-button{background:#426b42;color:white;border:2px solid #a6ca86;border-radius:7px;padding:9px;font-weight:bold;cursor:pointer}
-button:active{transform:scale(.94)}
-#chat{right:8px;top:8px;width:185px;height:190px}
-#messages{height:115px;overflow:auto;font-size:12px;overflow-wrap:anywhere}
-#chat input{width:100%;margin-top:5px;padding:7px}
-#notice{position:fixed;z-index:5;bottom:125px;left:50%;transform:translateX(-50%);background:#17251eeb;padding:10px;border:2px solid #83a96d;border-radius:8px;white-space:nowrap;font-size:13px}
-#controls{position:fixed;bottom:12px;left:12px;z-index:6;display:grid;grid-template-columns:48px 48px 48px;gap:4px}
-#actions{position:fixed;bottom:15px;right:12px;z-index:6;display:grid;gap:5px}
-#modal{display:none;position:fixed;z-index:10;inset:0;background:#000b;align-items:center;justify-content:center}
-#modalBox{background:#20382a;border:3px solid #a3c982;border-radius:12px;padding:20px;width:min(310px,90vw);text-align:center}
-#modalBox button{margin:5px}
-#minimap{position:fixed;right:205px;top:10px;width:75px;height:65px;background:#284e35;border:2px solid #a6ca86;border-radius:7px;z-index:4}
-@media(max-width:600px){
- #chat{top:155px;width:145px;height:155px}
- #messages{height:80px}
- #minimap{right:8px;top:92px}
- #menu{top:105px}
- #notice{bottom:115px}
-}
+body{margin:0;overflow:hidden;background:#101b16;color:white;font-family:Arial}
+canvas{width:100vw;height:100dvh;display:block;image-rendering:pixelated}
+.panel{position:fixed;z-index:3;background:#100d20ed;border:3px solid #9b75ff;border-radius:15px;padding:9px;box-shadow:0 0 8px #8d53ff}
+#profile{top:8px;left:8px;font-size:14px;line-height:1.5}
+#menu{top:150px;left:8px;display:grid;gap:5px;width:145px}
+button{background:#382078;color:white;border:2px solid #ad8aff;border-radius:9px;padding:10px;font-weight:bold}
+#chat{right:8px;top:180px;width:155px;height:210px}
+#messages{height:125px;overflow:auto;font-size:12px}
+#chat input{width:100%;padding:8px;margin-top:5px}
+#mini{position:fixed;right:8px;top:8px;width:100px;height:90px;border:3px solid #9b75ff;border-radius:12px;background:#23482b;z-index:3}
+#controls{position:fixed;bottom:15px;left:12px;z-index:4;display:grid;grid-template-columns:48px 48px 48px;gap:4px}
+#actions{position:fixed;bottom:18px;right:12px;z-index:4;display:grid;gap:7px}
+#notice{position:fixed;bottom:130px;left:50%;transform:translateX(-50%);z-index:4;background:#100d20ee;border:2px solid #9b75ff;padding:10px;border-radius:10px;font-size:13px}
+#modal{display:none;position:fixed;inset:0;z-index:8;background:#000b;align-items:center;justify-content:center}
+#modal div{background:#21143b;border:3px solid #a47aff;border-radius:14px;padding:20px;width:85%;max-width:320px}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
-
 <div id="profile" class="panel">
-<b>🏡 LIVE FAMILY</b><br>
-👤 <span id="nickname">Кайсар</span><br>
-⭐ Уровень 1<br>
-💰 <span id="money">500</span> $
+<b>👑 LIVE FAMILY</b><br>
+👤 <span id="nick">Кайсар</span><br>
+⭐ Уровень 1 · 0/100 XP<br>
+💰 <span id="money">1000</span> ₽
 </div>
-
 <div id="menu" class="panel">
-<button onclick="openMenu('Карта города')">🗺 Карта</button>
-<button onclick="openMenu('Магазин')">🛒 Магазин</button>
-<button onclick="openMenu('Работа')">💼 Работа</button>
-<button onclick="openMenu('Инвентарь')">🎒 Инвентарь</button>
-<button onclick="openMenu('Семья')">❤️ Семья</button>
+<button onclick="menu('Дом')">🏠 Дом</button>
+<button onclick="menu('Магазин')">🛒 Магазин</button>
+<button onclick="menu('Скин')">👕 Скин</button>
+<button onclick="menu('Работа')">💼 Работа</button>
+<button onclick="menu('Семья')">❤️ Семья</button>
+<button onclick="menu('Инвентарь')">🎁 Инвентарь</button>
+<button onclick="menu('Секреты')">⭐ Секреты</button>
+<button onclick="menu('Карта')">📍 Карта</button>
 </div>
-
-<canvas id="minimap" width="150" height="130"></canvas>
-
+<canvas id="mini" width="200" height="180"></canvas>
 <div id="chat" class="panel">
-<b>💬 Чат</b>
-<div id="messages">Добро пожаловать в LIVE FAMILY!</div>
-<input id="message" placeholder="Сообщение">
-<button onclick="sendMessage()">➤</button>
+<b>💬 Чат</b><div id="messages">Добро пожаловать!</div>
+<input id="msg" placeholder="Сообщение">
+<button onclick="send()">➤</button>
 </div>
-
-<div id="notice">Добро пожаловать в город!</div>
-
+<div id="notice">Добро пожаловать в LIVE FAMILY!</div>
 <div id="controls">
-<span></span><button onpointerdown="startMove(0,-1)" onpointerup="stopMove()" onpointerleave="stopMove()">▲</button><span></span>
-<button onpointerdown="startMove(-1,0)" onpointerup="stopMove()" onpointerleave="stopMove()">◀</button>
-<button onpointerdown="startMove(0,1)" onpointerup="stopMove()" onpointerleave="stopMove()">▼</button>
-<button onpointerdown="startMove(1,0)" onpointerup="stopMove()" onpointerleave="stopMove()">▶</button>
+<span></span><button onpointerdown="move(0,-1)" onpointerup="stop()" onpointerleave="stop()">▲</button><span></span>
+<button onpointerdown="move(-1,0)" onpointerup="stop()" onpointerleave="stop()">◀</button>
+<button onpointerdown="move(0,1)" onpointerup="stop()" onpointerleave="stop()">▼</button>
+<button onpointerdown="move(1,0)" onpointerup="stop()" onpointerleave="stop()">▶</button>
 </div>
-
 <div id="actions">
 <button onclick="interact()">🚪 Действие</button>
-<button onpointerdown="running=true" onpointerup="running=false" onpointerleave="running=false">🏃 Бег</button>
+<button onpointerdown="fast=true" onpointerup="fast=false" onpointerleave="fast=false">🏃 Бег</button>
 </div>
-
-<div id="modal">
-<div id="modalBox">
-<h3 id="modalTitle">LIVE FAMILY</h3>
-<div id="modalContent"></div>
-<button onclick="closeModal()">Закрыть</button>
-</div>
-</div>
-
+<div id="modal"><div><h3 id="mt"></h3><section id="mc"></section><button onclick="closeModal()">Закрыть</button></div></div>
 <script>
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
-const mini=document.getElementById('minimap').getContext('2d');
+const c=document.getElementById('game'),ctx=c.getContext('2d');
+const mini=document.getElementById('mini').getContext('2d');
+let W,H;
+function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
+onresize=resize;resize();
 
-let W,H,scale=1;
-function resize(){
- W=canvas.width=innerWidth;
- H=canvas.height=innerHeight;
- scale=Math.min(W/900,H/600);
-}
-addEventListener('resize',resize);resize();
-
-let nickname=localStorage.getItem('lf_nick')||prompt('Твой игровой ник?')||'Кайсар';
-localStorage.setItem('lf_nick',nickname);
-document.getElementById('nickname').textContent=nickname;
-
-let money=Number(localStorage.getItem('lf_money'))||500;
-let player={x:0,y:0};
-let camera={x:0,y:0};
-let movement={x:0,y:0};
-let running=false;
-let inside=null;
-let inventory=[];
-let tick=0;
-
-function save(){
- localStorage.setItem('lf_money',money);
- localStorage.setItem('lf_inventory',JSON.stringify(inventory));
-}
-try{inventory=JSON.parse(localStorage.getItem('lf_inventory'))||[]}catch(e){}
-
+let nick=localStorage.getItem('lfnick')||prompt('Твой ник?')||'Кайсар';
+localStorage.setItem('lfnick',nick);
+document.getElementById('nick').textContent=nick;
+let money=+(localStorage.getItem('lfmoney')||1000);
+let player={x:0,y:0},cam={x:0,y:0};
+let dx=0,dy=0,fast=false,inside=null;
+let items=JSON.parse(localStorage.getItem('lfitems')||'[]');
 const buildings=[
- {x:-280,y:-180,name:'Мой дом',type:'house',color:'#d99b62'},
- {x:80,y:-210,name:'Магазин',type:'shop',color:'#e4b65d'},
- {x:390,y:-160,name:'Работа',type:'job',color:'#82a8c1'},
- {x:-350,y:190,name:'Дом',type:'house',color:'#c77e68'},
- {x:320,y:230,name:'Дом',type:'house',color:'#a78bc4'}
+{x:-260,y:-180,w:160,h:110,name:'ДОМ',type:'home'},
+{x:20,y:-210,w:170,h:120,name:'МАГАЗИН',type:'shop'},
+{x:330,y:-175,w:170,h:120,name:'РАБОТА',type:'job'},
+{x:-370,y:170,w:150,h:105,name:'ДОМ',type:'home'},
+{x:330,y:190,w:150,h:105,name:'ДОМ',type:'home'}
 ];
 
 function iso(x,y){
- return {
-  x:W/2+(x-camera.x-y+camera.y)*scale,
-  y:H/2+(x-camera.x+y-camera.y)*.5*scale
- };
+ return [W/2+(x-cam.x-y+cam.y)*.8,H/2+(x-cam.x+y-cam.y)*.4];
 }
-function polygon(points,color){
- ctx.fillStyle=color;
- ctx.beginPath();
- points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
+function poly(points,color){
+ ctx.fillStyle=color;ctx.beginPath();
+ points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));
  ctx.closePath();ctx.fill();
 }
-function diamond(x,y,w,h,color){
- polygon([[x,y-h/2],[x+w/2,y],[x,y+h/2],[x-w/2,y]],color);
+function rect(x,y,w,h,color){
+ ctx.fillStyle=color;ctx.fillRect(x,y,w,h);
 }
-function worldDiamond(x,y,w,h,color){
- const p=iso(x,y);
- diamond(p.x,p.y,w*scale,h*scale,color);
-}
-function box(x,y,w,h,color){
- const p=iso(x,y);
- ctx.fillStyle=color;
- ctx.fillRect(p.x-w*scale/2,p.y-h*scale,w*scale,h*scale);
+function ground(){
+ rect(0,0,W,H,'#286b38');
+ // цельные парковые участки вместо повторяющихся ромбов
+ for(let i=0;i<24;i++){
+  let x=(i*197)%W,y=(i*131)%H;
+  rect(x,y,65,35,'#328443');
+  rect(x+8,y+8,4,4,'#e8b7d9');
+ }
+ // широкая улица и перекрёсток
+ rect(0,H*.42,W,H*.20,'#9a9a9b');
+ rect(W*.42,0,W*.17,H,'#9a9a9b');
+ // тротуарные края
+ rect(0,H*.415,W,7,'#d5c7ad');
+ rect(0,H*.625,W,7,'#d5c7ad');
+ rect(W*.415,0,7,H,'#d5c7ad');
+ rect(W*.595,0,7,H,'#d5c7ad');
+ // плитка
+ for(let x=0;x<W;x+=45){
+  rect(x,H*.47,2,H*.10,'#aaa9a5');
+ }
 }
 function tree(x,y){
- worldDiamond(x,y,50,27,'#387a3c');
- worldDiamond(x,y-17,42,25,'#4b9a48');
- worldDiamond(x,y-33,32,21,'#5caf50');
- box(x,y+8,8,22,'#80502d');
+ let [sx,sy]=iso(x,y);
+ // тень и ствол
+ ctx.fillStyle='#25482b';ctx.beginPath();ctx.ellipse(sx,sy+13,25,10,0,0,7);ctx.fill();
+ rect(sx-5,sy-22,10,30,'#75472b');
+ // крона слоями
+ ctx.fillStyle='#16723c';ctx.beginPath();ctx.arc(sx,sy-32,27,0,7);ctx.fill();
+ ctx.fillStyle='#269b48';ctx.beginPath();ctx.arc(sx-9,sy-43,19,0,7);ctx.fill();
+ ctx.fillStyle='#54b94d';ctx.beginPath();ctx.arc(sx+10,sy-48,14,0,7);ctx.fill();
 }
-function drawHouse(b){
- const p=iso(b.x,b.y);
- const s=scale;
+function flower(x,y){
+ let [sx,sy]=iso(x,y);
+ for(let i=0;i<5;i++){
+  ctx.fillStyle='#f4a6d7';ctx.beginPath();
+  ctx.arc(sx+Math.cos(i*1.25)*5,sy+Math.sin(i*1.25)*5,3,0,7);ctx.fill();
+ }
+}
+function building(b){
+ let [x,y]=iso(b.x,b.y);
+ let w=b.w*.8,h=b.h*.8;
  // тень
- diamond(p.x,p.y+12*s,150*s,75*s,'#426b43');
+ ctx.fillStyle='#183b25';ctx.fillRect(x-w/2+9,y-h*.45+12,w,h*.8);
  // стены
- polygon([
- [p.x-55*s,p.y-35*s],[p.x,p.y-5*s],
- [p.x+55*s,p.y-35*s],[p.x+55*s,p.y+35*s],
- [p.x,p.y+65*s],[p.x-55*s,p.y+35*s]
- ],b.color);
+ rect(x-w/2,y-h*.65,w,h*.8,b.type==='shop'?'#e6c4a1':b.type==='job'?'#9aa9c8':'#d7a77c');
  // крыша
- polygon([
- [p.x-60*s,p.y-35*s],[p.x,p.y-75*s],
- [p.x+60*s,p.y-35*s],[p.x,p.y+3*s]
- ],'#874638');
- polygon([
- [p.x-60*s,p.y-35*s],[p.x,p.y+3*s],
- [p.x,p.y-12*s],[p.x-60*s,p.y-52*s]
- ],'#a65342');
+ poly([[x-w/2-9,y-h*.65],[x,y-h*1.2],[x+w/2+9,y-h*.65],[x,y-h*.32]],
+ b.type==='shop'?'#c84740':b.type==='job'?'#53658e':'#8c3935');
  // окна
- diamond(p.x-30*s,p.y+1*s,20*s,14*s,'#a8e4e7');
- diamond(p.x+27*s,p.y+1*s,20*s,14*s,'#a8e4e7');
+ rect(x-w*.37,y-h*.53,w*.18,h*.25,'#68b9ec');
+ rect(x+w*.19,y-h*.53,w*.18,h*.25,'#68b9ec');
  // дверь
- polygon([
- [p.x-9*s,p.y+18*s],[p.x,p.y+13*s],
- [p.x+10*s,p.y+18*s],[p.x+10*s,p.y+52*s],
- [p.x,p.y+57*s],[p.x-9*s,p.y+52*s]
- ],'#65402b');
+ rect(x-11,y-24,22,42,'#603b2c');
+ rect(x+5,y-5,3,3,'#e8d17a');
+ // магазинный навес
+ if(b.type==='shop'){
+  rect(x-w*.49,y-h*.32,w*.98,13,'#f5e8e4');
+  for(let i=0;i<6;i++)rect(x-w*.49+i*w*.164,y-h*.32,w*.082,13,'#d94c4b');
+  rect(x-w*.30,y-h*.18,w*.60,30,'#4c8cdb');
+ }
  // вывеска
- ctx.fillStyle='white';
- ctx.font=`bold ${Math.max(10,12*s)}px Arial`;
- ctx.textAlign='center';
- ctx.fillText(b.name,p.x,p.y-82*s);
+ rect(x-w*.34,y-h*1.05,w*.68,23,'#25213c');
+ ctx.fillStyle='white';ctx.font='bold 14px Arial';ctx.textAlign='center';
+ ctx.fillText(b.name,x,y-h*.89);
 }
-function drawPlayer(){
- const p=iso(player.x,player.y);
- const s=scale;
+function playerDraw(){
+ let [x,y]=iso(player.x,player.y);
  // тень
- diamond(p.x,p.y+6*s,27*s,13*s,'#315b34');
- // ноги
- box(player.x-6,player.y,7,13,'#283b83');
- box(player.x+6,player.y,7,13,'#283b83');
- // тело
- box(player.x,player.y-15,19,22,'#315bd3');
+ ctx.fillStyle='#25452b';ctx.beginPath();ctx.ellipse(x,y+7,14,6,0,0,7);ctx.fill();
+ // ноги и тело
+ rect(x-9,y-16,8,17,'#191c27');
+ rect(x+2,y-16,8,17,'#191c27');
+ rect(x-11,y-36,22,22,'#20202b');
  // голова
- box(player.x,player.y-37,16,16,'#edc39a');
- box(player.x,player.y-45,17,7,'#493022');
- const screen=iso(player.x,player.y);
- ctx.fillStyle='white';
- ctx.font=`bold ${Math.max(10,12*s)}px Arial`;
- ctx.textAlign='center';
- ctx.fillText(nickname,screen.x,screen.y-55*s);
+ rect(x-9,y-53,18,17,'#f0c29b');
+ rect(x-11,y-58,22,8,'#201725');
+ rect(x-8,y-42,4,3,'#24202a');
+ rect(x+4,y-42,4,3,'#24202a');
+ ctx.fillStyle='white';ctx.font='bold 13px Arial';ctx.textAlign='center';
+ ctx.fillText(nick,x,y-67);
 }
-function drawGrass(){
- for(let x=-1000;x<1000;x+=75){
-  for(let y=-800;y<800;y+=75){
-   const p=iso(x,y);
-   diamond(p.x,p.y,70*scale,36*scale,'#69ad58');
-   if((x+y)%225===0){
-    ctx.fillStyle='#e9d46a';
-    ctx.fillRect(p.x,p.y,3*scale,3*scale);
-   }
-  }
+function park(){
+ for(let x=-550;x<650;x+=170){
+  tree(x,330);tree(x,-350);
+  flower(x+45,270);flower(x-40,-300);
+ }
+ // скамейки
+ for(let x of [-250,250]){
+  let [sx,sy]=iso(x,300);
+  rect(sx-24,sy-4,48,9,'#8a4d27');
+  rect(sx-20,sy+5,5,12,'#60402b');
+  rect(sx+15,sy+5,5,12,'#60402b');
  }
 }
-function drawRoad(){
- for(let x=-1100;x<1100;x+=70){
-  worldDiamond(x,0,75,48,'#b8aa8d');
-  worldDiamond(0,x,75,48,'#b8aa8d');
- }
+function interior(){
+ rect(0,0,W,H,'#b28b65');
+ rect(20,20,W-40,H-40,'#dfc49a');
+ // плиточный пол
+ for(let x=25;x<W-25;x+=48)rect(x,25,2,H-50,'#c6a87d');
+ // мебель
+ rect(45,100,100,65,'#885439');
+ rect(W-145,100,100,65,'#885439');
+ rect(W/2-35,H-130,70,100,'#77503a');
+ ctx.fillStyle='#282033';ctx.font='bold 23px Arial';
+ ctx.fillText(inside.name,35,55);
+ ctx.font='14px Arial';ctx.fillStyle='#382c22';
+ ctx.fillText('Нажми «Действие», чтобы выйти',35,80);
 }
-function drawInterior(){
- rect(0,0,W,H,'#b99a73');
- rect(20,20,W-40,H-40,'#d8bb8e');
- // пол
- for(let x=40;x<W-40;x+=50){
-  ctx.fillStyle='#c9a87c';ctx.fillRect(x,40,2,H-80);
- }
- rect(50,90,110,65,'#8a5539');
- rect(W-170,90,110,65,'#8a5539');
- rect(W/2-55,H-120,110,120,'#815037');
- ctx.fillStyle='#fff';ctx.font='bold 22px Arial';
- ctx.fillText(inside.name,40,55);
- ctx.font='14px Arial';
- ctx.fillText('Выйдите через дверь внизу',40,80);
+function drawMini(){
+ mini.fillStyle='#24633a';mini.fillRect(0,0,200,180);
+ mini.fillStyle='#aaa';mini.fillRect(0,78,200,25);mini.fillRect(87,0,25,180);
+ mini.fillStyle='#d7a36c';
+ buildings.forEach(b=>mini.fillRect(95+b.x/8,85+b.y/8,13,10));
+ mini.fillStyle='white';mini.beginPath();
+ mini.arc(100+player.x/8,90+player.y/8,5,0,7);mini.fill();
 }
-function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}
-function render(){
- tick++;
+function loop(){
  ctx.clearRect(0,0,W,H);
- if(inside){drawInterior()}
+ if(inside)interior();
  else{
-  drawGrass();
-  drawRoad();
-  for(let x=-900;x<=900;x+=220)tree(x,340);
-  for(let x=-900;x<=900;x+=220)tree(x,-370);
-  buildings.forEach(drawHouse);
-  drawPlayer();
+  ground();park();
+  buildings.forEach(building);
+  playerDraw();
  }
- // мини карта
- mini.fillStyle='#285333';mini.fillRect(0,0,150,130);
- mini.fillStyle='#b9aa8d';mini.fillRect(70,0,10,130);mini.fillRect(0,60,150,10);
- mini.fillStyle='#d4b06b';
- buildings.forEach(b=>mini.fillRect(75+(b.x/18),65+(b.y/18),9,8));
- mini.fillStyle='#fff';mini.fillRect(72+(player.x/18),62+(player.y/18),6,6);
- requestAnimationFrame(render);
+ drawMini();
+ requestAnimationFrame(loop);
 }
-render();
+loop();
 
-function startMove(x,y){movement={x,y}}
-function stopMove(){movement={x:0,y:0}}
+function move(x,y){dx=x;dy=y}
+function stop(){dx=dy=0}
 function update(){
  if(!inside){
-  const speed=running?5:2.6;
-  player.x+=movement.x*speed;
-  player.y+=movement.y*speed;
-  camera.x+=(player.x-camera.x)*.09;
-  camera.y+=(player.y-camera.y)*.09;
+  let s=fast?5:2.5;
+  player.x+=dx*s;player.y+=dy*s;
+  cam.x+=(player.x-cam.x)*.10;
+  cam.y+=(player.y-cam.y)*.10;
  }
  requestAnimationFrame(update);
 }
 update();
 
 function interact(){
- if(inside){
-  inside=null;
-  notice('Вы вышли на улицу');
-  return;
- }
- const b=buildings.find(b=>Math.hypot(player.x-b.x,player.y-b.y)<115);
- if(!b){notice('Подойдите к двери здания');return}
- inside=b;
- notice('Вы вошли: '+b.name);
+ if(inside){inside=null;notice('Вы вышли на улицу');return}
+ let b=buildings.find(b=>Math.hypot(player.x-b.x,player.y-b.y)<125);
+ if(!b){notice('Подойдите к двери');return}
+ inside=b;notice('Вы вошли: '+b.name);
 }
 function notice(t){document.getElementById('notice').textContent=t}
-function openModal(title,html){
- document.getElementById('modalTitle').textContent=title;
- document.getElementById('modalContent').innerHTML=html;
+function show(title,html){
+ document.getElementById('mt').textContent=title;
+ document.getElementById('mc').innerHTML=html;
  document.getElementById('modal').style.display='flex';
 }
 function closeModal(){document.getElementById('modal').style.display='none'}
-function openMenu(name){
+function menu(name){
  if(name==='Магазин'){
-  openModal('🛒 Магазин',
-  `<p>Одежда — 100 $</p><button onclick="buy('Одежда',100)">Купить</button>
-   <p>Шапка — 150 $</p><button onclick="buy('Шапка',150)">Купить</button>
-   <p>Красивая одежда — 250 $</p><button onclick="buy('Красивая одежда',250)">Купить</button>`);
+  show(name,'<p>Одежда — 100 ₽</p><button onclick="buy(100,\'Одежда\')">Купить</button><p>Шапка — 150 ₽</p><button onclick="buy(150,\'Шапка\')">Купить</button>');
  }else if(name==='Работа'){
-  openModal('💼 Работа',
-  `<p>Работа курьером</p><p>Награда: 100 $</p><button onclick="work()">Выполнить задание</button>`);
+  show(name,'<p>Выполни задание и получи 100 ₽</p><button onclick="earn()">Работать</button>');
  }else if(name==='Инвентарь'){
-  openModal('🎒 Инвентарь',inventory.length?inventory.map(i=>'<p>🎁 '+i+'</p>').join(''):'<p>Пока пусто</p>');
- }else if(name==='Семья'){
-  openModal('❤️ Семья','<p>Семейные функции скоро появятся.</p>');
- }else{
-  openModal('🗺 Карта','<p>Центральный район LIVE FAMILY</p><p>Дома · Магазин · Работа</p>');
- }
+  show(name,items.length?items.map(x=>'<p>🎁 '+x+'</p>').join(''):'<p>Пока пусто</p>');
+ }else if(name==='Секреты'){
+  show(name,'<p>♡ Секретное сообщение ♡</p><p>Я тебя люблю, Вика!</p>');
+ }else show(name,'<p>'+name+' — LIVE FAMILY</p><p>Исследуй город и знакомься с игроками!</p>');
 }
-function buy(item,cost){
- if(money<cost){notice('Недостаточно денег');return}
- money-=cost;inventory.push(item);save();updateMoney();
- notice('Куплено: '+item);closeModal();
+function buy(price,item){
+ if(money<price){notice('Недостаточно денег');return}
+ money-=price;items.push(item);save();closeModal();notice('Куплено: '+item);
 }
-function work(){
- money+=100;save();updateMoney();closeModal();
- notice('Вы заработали 100 $');
-}
-function updateMoney(){
+function earn(){money+=100;save();closeModal();notice('Ты заработал 100 ₽')}
+function save(){
+ localStorage.setItem('lfmoney',money);
+ localStorage.setItem('lfitems',JSON.stringify(items));
  document.getElementById('money').textContent=money;
 }
-updateMoney();
-
-function sendMessage(){
- const input=document.getElementById('message');
- if(!input.value.trim())return;
- const div=document.createElement('div');
- div.textContent=nickname+': '+input.value;
- document.getElementById('messages').appendChild(div);
- input.value='';
+function send(){
+ let v=document.getElementById('msg');
+ if(!v.value.trim())return;
+ let d=document.createElement('div');
+ d.textContent=nick+': '+v.value;
+ document.getElementById('messages').appendChild(d);
+ v.value='';
 }
-addEventListener('keydown',e=>{
- const k=e.key.toLowerCase();
- if(k==='w'||k==='arrowup')movement.y=-1;
- if(k==='s'||k==='arrowdown')movement.y=1;
- if(k==='a'||k==='arrowleft')movement.x=-1;
- if(k==='d'||k==='arrowright')movement.x=1;
+onkeydown=e=>{
+ let k=e.key.toLowerCase();
+ if(k==='w'||k==='arrowup')move(0,-1);
+ if(k==='s'||k==='arrowdown')move(0,1);
+ if(k==='a'||k==='arrowleft')move(-1,0);
+ if(k==='d'||k==='arrowright')move(1,0);
  if(k==='e')interact();
- if(k==='shift')running=true;
-});
-addEventListener('keyup',e=>{
- const k=e.key.toLowerCase();
- if(['w','s','a','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k))stopMove();
- if(k==='shift')running=false;
-});
+ if(k==='shift')fast=true;
+};
+onkeyup=e=>{
+ let k=e.key.toLowerCase();
+ if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k))stop();
+ if(k==='shift')fast=false;
+};
+save();
 </script>
 </body>
 </html>
-.
