@@ -1,154 +1,353 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>LIVE FAMILY — Кайсар</title>
+<title>LIVE FAMILY</title>
 <style>
-:root{--bg:#090b19;--panel:#0d1023;--purple:#792cff;--pink:#e879ff;--edge:#d9c8ff}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#72c5ed;color:#fff;font-family:system-ui,Arial,sans-serif;touch-action:none}
-#game{position:relative;width:100%;height:100%;overflow:hidden;background:#79c9ed}
-#world{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
-.panel{background:rgba(7,9,23,.97);border:3px solid var(--edge);box-shadow:0 0 0 2px #34215f,0 5px 0 #050611;border-radius:14px}
-#hud{position:absolute;top:8px;left:8px;padding:7px 9px;display:flex;gap:8px;align-items:center;min-width:200px}
-.avatar{width:49px;height:53px;border:2px solid #a66cff;border-radius:9px;background:linear-gradient(#422078,#17132d);display:grid;place-items:center;font-size:30px;flex-shrink:0}
-#hud b{font-size:15px}#hud .meta{font-size:12px;color:#e5ddff}#cash{color:#ffe16a;font-weight:900}
-#map{position:absolute;right:8px;top:8px;width:112px;padding:5px;text-align:center;font-weight:900;font-size:12px}
-#mini{width:100%;height:70px;display:block;margin-top:3px;border:2px solid #8061bd;border-radius:6px}
-#menu{position:absolute;left:8px;top:94px;width:132px;padding:5px}
-.menuBtn{width:100%;border:1px solid #342858;border-radius:8px;background:#15172d;color:#fff;text-align:left;padding:7px 5px;margin:2px 0;font-size:12px}
-.menuBtn.active{background:linear-gradient(100deg,#4d1ba8,#8739e8);border:2px solid #cbaaff}
-#chatPanel{position:absolute;right:8px;top:94px;width:min(230px,42vw);max-height:48%;padding:7px;display:flex;flex-direction:column;gap:6px}
-#chatHead{display:flex;justify-content:space-between;align-items:center;color:#e9d5ff;font-weight:900;border-bottom:1px solid #6b48a2;padding:1px 2px 6px}
-#chatClose{background:#6825c9;border:1px solid #d2b4ff;color:white;border-radius:7px;font-size:17px;width:27px;height:27px}
-#messages{overflow:auto;display:flex;flex-direction:column;gap:6px;min-height:70px;max-height:210px;overscroll-behavior:contain}
-.msg{display:flex;gap:6px;align-items:flex-start;font-size:11px}
-.msg .face{font-size:23px;width:27px;flex-shrink:0}
-.msg .bubble{background:#251444;border:1px solid #9250e8;border-radius:10px;padding:5px 7px;line-height:1.3;max-width:100%;overflow-wrap:anywhere}
-.msg .who{color:#e9baff;font-weight:800;margin-bottom:2px}
-#chatForm{display:flex;gap:5px}
-#chatInput{min-width:0;flex:1;background:#111329;border:1px solid #7f5bb2;border-radius:8px;padding:8px;color:white;font-size:12px;outline:none}
-#send{width:34px;border:1px solid #d0b0ff;background:#7429d4;color:white;border-radius:8px;font-size:18px}
-#dialog{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:min(570px,calc(100% - 16px));padding:9px 11px;display:flex;gap:9px;align-items:center;min-height:77px}
-#portrait{font-size:40px;width:48px;text-align:center;flex-shrink:0}
-#dialogName{font-weight:900;color:#e5baff;font-size:14px}#dialogText{font-size:12px;line-height:1.35}
-#controls{position:absolute;left:12px;bottom:105px;display:grid;grid-template-columns:39px 39px 39px;grid-template-rows:39px 39px 39px;gap:3px}
-.ctrl{background:#213750;border:2px solid #abc8eb;border-radius:10px;color:white;font-size:18px;touch-action:none}
-#up{grid-column:2}#left{grid-column:1;grid-row:2}#down{grid-column:2;grid-row:3}#right{grid-column:3;grid-row:2}
-#actionButtons{position:absolute;right:10px;bottom:112px;display:flex;gap:7px}
-.action{border:2px solid #c7a5ff;background:#6322bc;color:white;border-radius:50%;width:65px;height:65px;font-size:11px;font-weight:900}
-#toast{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);background:#111326;border:2px solid #c7a5ff;border-radius:10px;padding:8px 12px;opacity:0;pointer-events:none;font-size:13px;font-weight:800;transition:opacity .2s}
-#toast.show{opacity:1}
-#modal{position:absolute;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:16px}
-#modal.show{display:flex}.modalBox{width:min(390px,100%);max-height:80%;overflow:auto;padding:15px;background:#0c0d20;border:3px solid #c4a4ff;border-radius:14px;box-shadow:0 0 0 3px #3c246e}
-.modalBox h2{margin:0 0 10px;color:#e6c5ff;font-size:20px}.modalBox p{line-height:1.45;font-size:14px}
-.close,.buy{padding:9px 14px;border:2px solid #c8a8ff;border-radius:9px;background:#632bb6;color:white;font-weight:800}
-.skinGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.skin{padding:7px 2px;border:2px solid #51436f;background:#17182d;color:white;border-radius:8px;font-size:24px}.skin.selected{border-color:#f08af0;background:#3a235d}
-@media(max-width:500px){#hud{min-width:174px}.avatar{width:43px;height:47px;font-size:26px}#map{width:96px}#menu{top:88px;width:119px}.menuBtn{font-size:11px;padding:7px 4px}#chatPanel{top:88px;width:42vw;max-height:43%;padding:5px}#messages{max-height:145px}.msg{font-size:10px}.msg .face{font-size:19px;width:22px}#chatInput{font-size:10px;padding:6px}#controls{bottom:103px;transform:scale(.9);transform-origin:left bottom}#actionButtons{bottom:112px;gap:4px}.action{width:56px;height:56px;font-size:10px}#dialog{bottom:6px;min-height:70px}#dialogText{font-size:11px}}
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;background:#18251e;color:white;font-family:Arial}
+canvas{display:block;width:100vw;height:100dvh;image-rendering:pixelated}
+.panel{position:fixed;z-index:5;background:#17251eeb;border:2px solid #83a96d;border-radius:9px;padding:9px;box-shadow:0 3px 0 #101a13}
+#profile{top:8px;left:8px;font-size:13px}
+#menu{top:105px;left:8px;display:grid;gap:5px}
+button{background:#426b42;color:white;border:2px solid #a6ca86;border-radius:7px;padding:9px;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.94)}
+#chat{right:8px;top:8px;width:185px;height:190px}
+#messages{height:115px;overflow:auto;font-size:12px;overflow-wrap:anywhere}
+#chat input{width:100%;margin-top:5px;padding:7px}
+#notice{position:fixed;z-index:5;bottom:125px;left:50%;transform:translateX(-50%);background:#17251eeb;padding:10px;border:2px solid #83a96d;border-radius:8px;white-space:nowrap;font-size:13px}
+#controls{position:fixed;bottom:12px;left:12px;z-index:6;display:grid;grid-template-columns:48px 48px 48px;gap:4px}
+#actions{position:fixed;bottom:15px;right:12px;z-index:6;display:grid;gap:5px}
+#modal{display:none;position:fixed;z-index:10;inset:0;background:#000b;align-items:center;justify-content:center}
+#modalBox{background:#20382a;border:3px solid #a3c982;border-radius:12px;padding:20px;width:min(310px,90vw);text-align:center}
+#modalBox button{margin:5px}
+#minimap{position:fixed;right:205px;top:10px;width:75px;height:65px;background:#284e35;border:2px solid #a6ca86;border-radius:7px;z-index:4}
+@media(max-width:600px){
+ #chat{top:155px;width:145px;height:155px}
+ #messages{height:80px}
+ #minimap{right:8px;top:92px}
+ #menu{top:105px}
+ #notice{bottom:115px}
+}
 </style>
 </head>
 <body>
-<div id="game">
-<canvas id="world"></canvas>
-<div id="hud" class="panel"><div class="avatar" id="hudFace">🧑🏻</div><div><b>LIVE FAMILY</b><div><span id="playerName">Кайсар ♡</span> · Ур. 1</div><div class="meta">XP <span id="xp">0</span>/100</div><div id="cash">🪙 1 000 ₽</div></div></div>
-<div id="map" class="panel">КАРТА<canvas id="mini"></canvas><div class="meta" id="areaLabel">Центр города</div></div>
-<nav id="menu" class="panel">
-<button class="menuBtn active" data-open="home">⌂ Дом</button><button class="menuBtn" data-open="shop">🛒 Магазин</button><button class="menuBtn" data-open="skins">👕 Скин</button><button class="menuBtn" data-open="work">💼 Работа</button><button class="menuBtn" data-open="family">♡ Семья</button><button class="menuBtn" data-open="inventory">🎒 Инвентарь</button><button class="menuBtn" data-open="secrets">✦ Секреты</button><button class="menuBtn" data-open="chat">💬 Чат</button><button class="menuBtn" data-open="map">⌖ Карта</button>
-</nav>
-<section id="chatPanel" class="panel">
-<div id="chatHead"><span>💬 Чат LIVE FAMILY</span><button id="chatClose" aria-label="Свернуть чат">×</button></div>
-<div id="messages"></div>
-<form id="chatForm"><input id="chatInput" maxlength="160" autocomplete="off" placeholder="Написать сообщение..."><button id="send" type="submit">➤</button></form>
-</section>
-<div id="controls"><button class="ctrl" id="up">▲</button><button class="ctrl" id="left">◀</button><button class="ctrl" id="down">▼</button><button class="ctrl" id="right">▶</button></div>
-<div id="actionButtons"><button class="action" id="run">БЕГ</button><button class="action" id="act">ДЕЙСТВИЕ</button></div>
-<div id="dialog" class="panel"><div id="portrait">🧑🏻</div><div><div id="dialogName">Кайсар</div><div id="dialogText">Добро пожаловать в LIVE FAMILY! Исследуй город и общайся с жителями.</div></div></div>
-<div id="toast"></div><div id="modal"><div class="modalBox" id="modalContent"></div></div>
+<canvas id="game"></canvas>
+
+<div id="profile" class="panel">
+<b>🏡 LIVE FAMILY</b><br>
+👤 <span id="nickname">Кайсар</span><br>
+⭐ Уровень 1<br>
+💰 <span id="money">500</span> $
 </div>
+
+<div id="menu" class="panel">
+<button onclick="openMenu('Карта города')">🗺 Карта</button>
+<button onclick="openMenu('Магазин')">🛒 Магазин</button>
+<button onclick="openMenu('Работа')">💼 Работа</button>
+<button onclick="openMenu('Инвентарь')">🎒 Инвентарь</button>
+<button onclick="openMenu('Семья')">❤️ Семья</button>
+</div>
+
+<canvas id="minimap" width="150" height="130"></canvas>
+
+<div id="chat" class="panel">
+<b>💬 Чат</b>
+<div id="messages">Добро пожаловать в LIVE FAMILY!</div>
+<input id="message" placeholder="Сообщение">
+<button onclick="sendMessage()">➤</button>
+</div>
+
+<div id="notice">Добро пожаловать в город!</div>
+
+<div id="controls">
+<span></span><button onpointerdown="startMove(0,-1)" onpointerup="stopMove()" onpointerleave="stopMove()">▲</button><span></span>
+<button onpointerdown="startMove(-1,0)" onpointerup="stopMove()" onpointerleave="stopMove()">◀</button>
+<button onpointerdown="startMove(0,1)" onpointerup="stopMove()" onpointerleave="stopMove()">▼</button>
+<button onpointerdown="startMove(1,0)" onpointerup="stopMove()" onpointerleave="stopMove()">▶</button>
+</div>
+
+<div id="actions">
+<button onclick="interact()">🚪 Действие</button>
+<button onpointerdown="running=true" onpointerup="running=false" onpointerleave="running=false">🏃 Бег</button>
+</div>
+
+<div id="modal">
+<div id="modalBox">
+<h3 id="modalTitle">LIVE FAMILY</h3>
+<div id="modalContent"></div>
+<button onclick="closeModal()">Закрыть</button>
+</div>
+</div>
+
 <script>
-(()=>{
-const canvas=document.getElementById('world'),ctx=canvas.getContext('2d'),mini=document.getElementById('mini'),mctx=mini.getContext('2d');
-let vw=innerWidth,vh=innerHeight,dpr=devicePixelRatio||1,px=vw*1.5,py=vh*1.5,camX=0,camY=0,face='🧑🏻',cash=Number(localStorage.getItem('lf_cash')||1000),xp=0,skin=0,running=false,chatOpen=true;
-const areaNames=[['Северный парк','Старый квартал','Восточный район'],['Западный парк','Центр города','Торговая улица'],['Южный парк','Жилой район','Набережная']];
-const skins=[['🧑🏻','Обычный',0],['👩🏻','Горожанка',250],['🧑🏽','Путешественник',350],['🧑🏻‍🦱','Кудрявый',500],['🧑🏻‍🎤','Музыкант',650],['🧝🏻','Фэнтези',800],['🧑🏿','Новый стиль',450],['👩🏽‍🦰','Рыжая',550]];
-const npcBase=[['Аня','Привет! Хороший сегодня день.','👩🏻'],['Дима','Я работаю неподалёку. Загляни в офис!','🧑🏻'],['Вика','Привет, Кайсар! Рада тебя видеть. ♡','👩🏽']];
-let npcs=[],chatHistory=JSON.parse(localStorage.getItem('lf_chat')||'[]');
-function resize(){vw=innerWidth;vh=innerHeight;canvas.width=vw*dpr;canvas.height=vh*dpr;canvas.style.width=vw+'px';canvas.style.height=vh+'px';ctx.setTransform(dpr,0,0,dpr,0,0)}
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const mini=document.getElementById('minimap').getContext('2d');
+
+let W,H,scale=1;
+function resize(){
+ W=canvas.width=innerWidth;
+ H=canvas.height=innerHeight;
+ scale=Math.min(W/900,H/600);
+}
 addEventListener('resize',resize);resize();
-function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
-function pixelText(text,x,y,size=13,color='#fff'){ctx.fillStyle=color;ctx.textAlign='center';ctx.font=`900 ${size}px system-ui`;ctx.fillText(text,x,y)}
-function cloud(x,y,s=1){rect(x,y,42*s,10*s,'#fff');rect(x+8*s,y-8*s,25*s,9*s,'#fff');rect(x+34*s,y+2*s,18*s,8*s,'#fff')}
-function tree(x,y,s=1){
-  rect(x-7*s,y+11*s,14*s,34*s,'#80502f');rect(x-4*s,y+12*s,4*s,31*s,'#9b6338');
-  rect(x-25*s,y-5*s,50*s,31*s,'#16884b');rect(x-20*s,y-20*s,40*s,24*s,'#28a85a');
-  rect(x-12*s,y-31*s,25*s,16*s,'#43bd66');rect(x-21*s,y+5*s,9*s,8*s,'#239c53');
-  rect(x+12*s,y+4*s,9*s,8*s,'#239c53');rect(x-16*s,y-14*s,8*s,6*s,'#51c96c');
+
+let nickname=localStorage.getItem('lf_nick')||prompt('Твой игровой ник?')||'Кайсар';
+localStorage.setItem('lf_nick',nickname);
+document.getElementById('nickname').textContent=nickname;
+
+let money=Number(localStorage.getItem('lf_money'))||500;
+let player={x:0,y:0};
+let camera={x:0,y:0};
+let movement={x:0,y:0};
+let running=false;
+let inside=null;
+let inventory=[];
+let tick=0;
+
+function save(){
+ localStorage.setItem('lf_money',money);
+ localStorage.setItem('lf_inventory',JSON.stringify(inventory));
 }
-function house(x,y,w,h,color,label){
-  rect(x+5,y+h-7,w,h*.1,'#684b43');rect(x,y,w,h,color);
-  rect(x+5,y+5,w-10,h-10,'rgba(255,255,255,.035)');
-  rect(x-7,y-11,w+14,15,'#51404a');rect(x-7,y-11,w+14,4,'#6b525b');
-  rect(x+w*.42,y+h*.62,w*.18,h*.38,'#624337');rect(x+w*.44,y+h*.64,w*.04,h*.34,'#80563e');
-  for(let i=0;i<3;i++){
-    let wx=x+w*(.12+i*.34),wy=y+h*.25,ww=w*.17,wh=h*.22;
-    rect(wx-3,wy-3,ww+6,wh+6,'#d9d4ce');rect(wx,wy,ww,wh,'#79d9f0');
-    rect(wx+ww*.45,wy,ww*.10,wh,'#e9fbff');rect(wx,wy+wh*.48,ww,3,'#d9f6ff');
+try{inventory=JSON.parse(localStorage.getItem('lf_inventory'))||[]}catch(e){}
+
+const buildings=[
+ {x:-280,y:-180,name:'Мой дом',type:'house',color:'#d99b62'},
+ {x:80,y:-210,name:'Магазин',type:'shop',color:'#e4b65d'},
+ {x:390,y:-160,name:'Работа',type:'job',color:'#82a8c1'},
+ {x:-350,y:190,name:'Дом',type:'house',color:'#c77e68'},
+ {x:320,y:230,name:'Дом',type:'house',color:'#a78bc4'}
+];
+
+function iso(x,y){
+ return {
+  x:W/2+(x-camera.x-y+camera.y)*scale,
+  y:H/2+(x-camera.x+y-camera.y)*.5*scale
+ };
+}
+function polygon(points,color){
+ ctx.fillStyle=color;
+ ctx.beginPath();
+ points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
+ ctx.closePath();ctx.fill();
+}
+function diamond(x,y,w,h,color){
+ polygon([[x,y-h/2],[x+w/2,y],[x,y+h/2],[x-w/2,y]],color);
+}
+function worldDiamond(x,y,w,h,color){
+ const p=iso(x,y);
+ diamond(p.x,p.y,w*scale,h*scale,color);
+}
+function box(x,y,w,h,color){
+ const p=iso(x,y);
+ ctx.fillStyle=color;
+ ctx.fillRect(p.x-w*scale/2,p.y-h*scale,w*scale,h*scale);
+}
+function tree(x,y){
+ worldDiamond(x,y,50,27,'#387a3c');
+ worldDiamond(x,y-17,42,25,'#4b9a48');
+ worldDiamond(x,y-33,32,21,'#5caf50');
+ box(x,y+8,8,22,'#80502d');
+}
+function drawHouse(b){
+ const p=iso(b.x,b.y);
+ const s=scale;
+ // тень
+ diamond(p.x,p.y+12*s,150*s,75*s,'#426b43');
+ // стены
+ polygon([
+ [p.x-55*s,p.y-35*s],[p.x,p.y-5*s],
+ [p.x+55*s,p.y-35*s],[p.x+55*s,p.y+35*s],
+ [p.x,p.y+65*s],[p.x-55*s,p.y+35*s]
+ ],b.color);
+ // крыша
+ polygon([
+ [p.x-60*s,p.y-35*s],[p.x,p.y-75*s],
+ [p.x+60*s,p.y-35*s],[p.x,p.y+3*s]
+ ],'#874638');
+ polygon([
+ [p.x-60*s,p.y-35*s],[p.x,p.y+3*s],
+ [p.x,p.y-12*s],[p.x-60*s,p.y-52*s]
+ ],'#a65342');
+ // окна
+ diamond(p.x-30*s,p.y+1*s,20*s,14*s,'#a8e4e7');
+ diamond(p.x+27*s,p.y+1*s,20*s,14*s,'#a8e4e7');
+ // дверь
+ polygon([
+ [p.x-9*s,p.y+18*s],[p.x,p.y+13*s],
+ [p.x+10*s,p.y+18*s],[p.x+10*s,p.y+52*s],
+ [p.x,p.y+57*s],[p.x-9*s,p.y+52*s]
+ ],'#65402b');
+ // вывеска
+ ctx.fillStyle='white';
+ ctx.font=`bold ${Math.max(10,12*s)}px Arial`;
+ ctx.textAlign='center';
+ ctx.fillText(b.name,p.x,p.y-82*s);
+}
+function drawPlayer(){
+ const p=iso(player.x,player.y);
+ const s=scale;
+ // тень
+ diamond(p.x,p.y+6*s,27*s,13*s,'#315b34');
+ // ноги
+ box(player.x-6,player.y,7,13,'#283b83');
+ box(player.x+6,player.y,7,13,'#283b83');
+ // тело
+ box(player.x,player.y-15,19,22,'#315bd3');
+ // голова
+ box(player.x,player.y-37,16,16,'#edc39a');
+ box(player.x,player.y-45,17,7,'#493022');
+ const screen=iso(player.x,player.y);
+ ctx.fillStyle='white';
+ ctx.font=`bold ${Math.max(10,12*s)}px Arial`;
+ ctx.textAlign='center';
+ ctx.fillText(nickname,screen.x,screen.y-55*s);
+}
+function drawGrass(){
+ for(let x=-1000;x<1000;x+=75){
+  for(let y=-800;y<800;y+=75){
+   const p=iso(x,y);
+   diamond(p.x,p.y,70*scale,36*scale,'#69ad58');
+   if((x+y)%225===0){
+    ctx.fillStyle='#e9d46a';
+    ctx.fillRect(p.x,p.y,3*scale,3*scale);
+   }
   }
-  rect(x+8,y+h-17,12,5,'rgba(90,50,35,.22)');
-  pixelText(label,x+w/2,y-17,14,'#fff');
+ }
 }
-function sector(sx,sy){
-let ox=sx*vw-camX,oy=sy*vh-camY;
-let sky=ctx.createLinearGradient(0,oy,0,oy+vh*.72);sky.addColorStop(0,'#72c5eb');sky.addColorStop(1,'#c6eaff');ctx.fillStyle=sky;ctx.fillRect(ox,oy,vw,vh*.72);
-rect(ox,oy+vh*.69,vw,vh*.31,'#70bd4d');rect(ox,oy+vh*.69,vw,5,'#9bd66b');
-cloud(ox+vw*.08,oy+vh*.12,.75);cloud(ox+vw*.68,oy+vh*.08,.65);
-for(let i=0;i<125;i++){let x=ox+(i*83+17)%vw,y=oy+vh*.70+(i*31)%(vh*.29);rect(x,y,4,4,i%2?'#9bdc69':'#4a9a3f');if(i%4===0)rect(x+4,y+2,3,3,'#4b9b3e')}
-rect(ox,oy+vh*.39,vw,vh*.24,'#aa9cba');rect(ox,oy+vh*.39,vw,7,'#bcb0ca');
-rect(ox,oy+vh*.405,vw,vh*.012,'#887c9c');rect(ox,oy+vh*.625,vw,vh*.012,'#887c9c');
-for(let x=0;x<vw;x+=40)for(let y=vh*.42;y<vh*.62;y+=28)rect(ox+x,oy+y,35,2,'#8e829f');
-if((sx+sy)%2===0){house(ox+vw*.06,oy+vh*.22,vw*.22,vh*.24,'#d99a68','ДОМ');house(ox+vw*.39,oy+vh*.18,vw*.21,vh*.27,'#d95787','МАГАЗИН');house(ox+vw*.70,oy+vh*.21,vw*.20,vh*.24,'#586d9e','РАБОТА')}
-else{house(ox+vw*.10,oy+vh*.20,vw*.22,vh*.25,'#d9ae70','КАФЕ');house(ox+vw*.64,oy+vh*.19,vw*.23,vh*.26,'#9b83c7','КВАРТИРЫ')}
-for(let i=0;i<12;i++){let x=ox+(i*137+65)%vw,y=oy+vh*.68+(i%3)*42;tree(x,y,.8+(i%2)*.2)}
-for(let i=0;i<16;i++){let x=ox+(i*91+30)%vw,y=oy+vh*.73+(i%4)*35;rect(x,y,4,4,'#ff8fc7');rect(x+4,y+3,4,4,'#fff2a4');rect(x+2,y+5,3,4,'#f6f0a2')}
-rect(ox+vw*.18,oy+vh*.78,62,9,'#8a552e');rect(ox+vw*.18,oy+vh*.76,62,7,'#c38a45');
+function drawRoad(){
+ for(let x=-1100;x<1100;x+=70){
+  worldDiamond(x,0,75,48,'#b8aa8d');
+  worldDiamond(0,x,75,48,'#b8aa8d');
+ }
 }
-function makeNpcs(){npcs=[];for(let sy=0;sy<3;sy++)for(let sx=0;sx<3;sx++)npcBase.forEach((n,i)=>npcs.push({x:sx*vw+vw*(.28+i*.22),y:sy*vh+vh*(.55+(i%2)*.07),name:n[0],line:n[1],emoji:n[2]}))}
-makeNpcs();
-function drawMini(){let w=mini.clientWidth,h=mini.clientHeight;mini.width=w*dpr;mini.height=h*dpr;mctx.setTransform(dpr,0,0,dpr,0,0);mctx.fillStyle='#5aa95c';mctx.fillRect(0,0,w,h);mctx.fillStyle='#aa9cba';mctx.fillRect(0,h*.31,w,h*.35);mctx.fillRect(w*.31,0,w*.35,h);for(let y=0;y<3;y++)for(let x=0;x<3;x++){mctx.fillStyle=(x+y)%2?'#4b9e58':'#70bd63';mctx.fillRect(x*w/3+2,y*h/3+2,w/3-4,h/3-4)}mctx.fillStyle='#f3d99c';[[.16,.17],[.5,.17],[.83,.17],[.16,.83],[.83,.83]].forEach(p=>mctx.fillRect(p[0]*w-5,p[1]*h-5,10,10));mctx.fillStyle='white';mctx.beginPath();mctx.arc(px/(vw*3)*w,py/(vh*3)*h,4,0,Math.PI*2);mctx.fill()}
-let lastArea='';
-function draw(){ctx.clearRect(0,0,vw,vh);camX=Math.max(0,Math.min(vw*2,px-vw/2));camY=Math.max(0,Math.min(vh*2,py-vh/2));for(let y=0;y<3;y++)for(let x=0;x<3;x++)sector(x,y);
-npcs.forEach(n=>{let x=n.x-camX,y=n.y-camY;if(x>-30&&x<vw+30&&y>-30&&y<vh+30){ctx.textAlign='center';ctx.font='29px system-ui';ctx.fillText(n.emoji,x,y);ctx.font='bold 10px system-ui';ctx.fillStyle='#fff';ctx.fillText(n.name,x,y+13)}});
-let x=px-camX,y=py-camY;ctx.textAlign='center';ctx.font='bold 12px system-ui';ctx.fillStyle='#111';ctx.fillText('Кайсар ♡',x,y-27);ctx.font='34px system-ui';ctx.fillText(face,x,y+2);
-let ax=Math.min(2,Math.floor(px/vw)),ay=Math.min(2,Math.floor(py/vh)),name=areaNames[ay][ax];document.getElementById('areaLabel').textContent=name;if(name!==lastArea){lastArea=name;toast('Район: '+name)}drawMini();requestAnimationFrame(draw)}
-function toast(t){let e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.classList.remove('show'),1200)}
-function move(dx,dy){let ox=Math.floor(px/vw),oy=Math.floor(py/vh);px=Math.max(12,Math.min(vw*3-12,px+dx));py=Math.max(65,Math.min(vh*3-80,py+dy));if(Math.floor(px/vw)!==ox||Math.floor(py/vh)!==oy)toast('Переход в новый район')}
-function say(n,t,e='🧑🏻'){document.getElementById('dialogName').textContent=n;document.getElementById('dialogText').textContent=t;document.getElementById('portrait').textContent=e}
-function updateHud(){document.getElementById('cash').textContent='🪙 '+cash.toLocaleString('ru-RU')+' ₽';document.getElementById('xp').textContent=xp;document.getElementById('hudFace').textContent=face;localStorage.setItem('lf_cash',cash)}
-function modal(title,body){document.getElementById('modalContent').innerHTML=`<h2>${title}</h2>${body}<p style="text-align:right"><button class="close" id="closeModal">Закрыть</button></p>`;document.getElementById('modal').classList.add('show');document.getElementById('closeModal').onclick=()=>document.getElementById('modal').classList.remove('show')}
-function open(which){document.querySelectorAll('.menuBtn').forEach(b=>b.classList.toggle('active',b.dataset.open===which));
-if(which==='chat'){document.getElementById('chatPanel').style.display='flex';chatOpen=true;document.getElementById('chatInput').focus()}
-else if(which==='secrets'){modal('✦ Секреты ✦',`<p>Особенное послание от Кайсара:</p><p style="color:#f18be8;text-align:center;font-weight:800">Я тебя люблю, Вика!<br>Ты моя будущая жена.<br>Я тебя никогда не брошу. ♡</p>`)}
-else if(which==='skins'){modal('👕 Магазин скинов',`<div class="skinGrid">${skins.map((s,i)=>`<button class="skin ${i===skin?'selected':''}" data-skin="${i}">${s[0]}</button>`).join('')}</div><p id="skinInfo">${skins[skin][1]} · ${skins[skin][2]} ₽</p><button class="buy" id="buySkin">Купить / надеть</button>`);document.querySelectorAll('[data-skin]').forEach(b=>b.onclick=()=>{skin=+b.dataset.skin;document.querySelectorAll('[data-skin]').forEach(x=>x.classList.toggle('selected',+x.dataset.skin===skin));document.getElementById('skinInfo').textContent=skins[skin][1]+' · '+skins[skin][2]+' ₽'});document.getElementById('buySkin').onclick=()=>{let p=skins[skin][2];if(cash>=p){cash-=p;face=skins[skin][0];updateHud();say('Кайсар','Новый образ надет!',face);document.getElementById('modal').classList.remove('show')}else document.getElementById('skinInfo').textContent='Не хватает денег.'}}
-else if(which==='shop')modal('🛒 Магазин',`<p>Здесь можно покупать одежду и предметы. Новые товары появятся позже.</p>`);
-else if(which==='work')modal('💼 Работа',`<p>Подойди к зданию работы и нажми «ДЕЙСТВИЕ», чтобы получить 100 ₽.</p>`);
-else if(which==='family')modal('♡ Семья',`<p>Знакомься с жителями, разговаривай и проводи время вместе.</p>`);
-else if(which==='inventory')modal('🎒 Инвентарь',`<p>Пока пусто. Купленные скины доступны в меню персонажа.</p>`);
-else if(which==='map')modal('⌖ Карта города',`<p>В городе 9 районов. Иди к краю экрана, чтобы перейти на соседнюю карту.</p>`);
-else say('Кайсар','Это твой дом. Исследуй город и общайся с жителями.',face)}
-document.querySelectorAll('.menuBtn').forEach(b=>b.onclick=()=>open(b.dataset.open));
-function renderChat(){let box=document.getElementById('messages');box.innerHTML='';chatHistory.slice(-30).forEach(m=>{let row=document.createElement('div');row.className='msg';let f=document.createElement('div');f.className='face';f.textContent=m.face;let content=document.createElement('div');let who=document.createElement('div');who.className='who';who.textContent=m.name+' · '+m.time;let bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=m.text;content.append(who,bubble);row.append(f,content);box.append(row)});box.scrollTop=box.scrollHeight}
-function saveChat(){localStorage.setItem('lf_chat',JSON.stringify(chatHistory.slice(-60)))}
-function addMessage(name,text,emoji){let now=new Date(),time=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});chatHistory.push({name,text,face:emoji,time});saveChat();renderChat()}
-if(chatHistory.length===0){chatHistory=[{name:'Вика ♡',text:'Привет, Кайсар! ♡',face:'👩🏽',time:'13:07'},{name:'Кайсар',text:'Привет, Вика! ♡',face:'🧑🏻',time:'13:08'},{name:'Вика ♡',text:'Рада тебя видеть!',face:'👩🏽',time:'13:09'}];saveChat()}
-renderChat();
-document.getElementById('chatForm').addEventListener('submit',e=>{e.preventDefault();let input=document.getElementById('chatInput'),t=input.value.trim();if(!t)return;addMessage('Кайсар',t,face);input.value='';});
-document.getElementById('chatClose').onclick=()=>{document.getElementById('chatPanel').style.display='none';chatOpen=false};
-let moveTimer=null;function startMove(dx,dy){move(dx,dy);clearInterval(moveTimer);moveTimer=setInterval(()=>move(dx,dy),65)}function stopMove(){clearInterval(moveTimer);moveTimer=null}
-[['up',0,-7],['down',0,7],['left',-7,0],['right',7,0]].forEach(([id,dx,dy])=>{let b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);startMove(dx*(running?1.7:1),dy*(running?1.7:1))});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,stopMove))});
-document.getElementById('run').onclick=()=>{running=!running;document.getElementById('run').textContent=running?'ИДЁШЬ':'БЕГ';toast(running?'Быстрое движение включено':'Обычная скорость')};
-addEventListener('keydown',e=>{let k=e.key.toLowerCase(),v=running?16:9;if(k==='arrowup'||k==='w')move(0,-v);if(k==='arrowdown'||k==='s')move(0,v);if(k==='arrowleft'||k==='a')move(-v,0);if(k==='arrowright'||k==='d')move(v,0)});
-document.getElementById('act').onclick=()=>{let n=npcs.find(n=>Math.hypot(n.x-px,n.y-py)<90);if(n){say(n.name,n.name==='Вика'?'Привет, Кайсар! Загляни в секреты. ♡':n.line,n.emoji);addMessage(n.name,n.line,n.emoji);return}let rx=(px%vw)/vw,ry=(py%vh)/vh;if(ry<.5&&rx>.35&&rx<.65){open('shop')}else if(ry<.5&&rx>.65){cash+=100;xp+=10;updateHud();say('Работа','Ты получил зарплату: 100 ₽!','💼')}else say('Кайсар','Исследуй '+areaNames[Math.min(2,Math.floor(py/vh))][Math.min(2,Math.floor(px/vw))]+' и ищи жителей.',face)};
-updateHud();requestAnimationFrame(draw);
-})();
+function drawInterior(){
+ rect(0,0,W,H,'#b99a73');
+ rect(20,20,W-40,H-40,'#d8bb8e');
+ // пол
+ for(let x=40;x<W-40;x+=50){
+  ctx.fillStyle='#c9a87c';ctx.fillRect(x,40,2,H-80);
+ }
+ rect(50,90,110,65,'#8a5539');
+ rect(W-170,90,110,65,'#8a5539');
+ rect(W/2-55,H-120,110,120,'#815037');
+ ctx.fillStyle='#fff';ctx.font='bold 22px Arial';
+ ctx.fillText(inside.name,40,55);
+ ctx.font='14px Arial';
+ ctx.fillText('Выйдите через дверь внизу',40,80);
+}
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}
+function render(){
+ tick++;
+ ctx.clearRect(0,0,W,H);
+ if(inside){drawInterior()}
+ else{
+  drawGrass();
+  drawRoad();
+  for(let x=-900;x<=900;x+=220)tree(x,340);
+  for(let x=-900;x<=900;x+=220)tree(x,-370);
+  buildings.forEach(drawHouse);
+  drawPlayer();
+ }
+ // мини карта
+ mini.fillStyle='#285333';mini.fillRect(0,0,150,130);
+ mini.fillStyle='#b9aa8d';mini.fillRect(70,0,10,130);mini.fillRect(0,60,150,10);
+ mini.fillStyle='#d4b06b';
+ buildings.forEach(b=>mini.fillRect(75+(b.x/18),65+(b.y/18),9,8));
+ mini.fillStyle='#fff';mini.fillRect(72+(player.x/18),62+(player.y/18),6,6);
+ requestAnimationFrame(render);
+}
+render();
+
+function startMove(x,y){movement={x,y}}
+function stopMove(){movement={x:0,y:0}}
+function update(){
+ if(!inside){
+  const speed=running?5:2.6;
+  player.x+=movement.x*speed;
+  player.y+=movement.y*speed;
+  camera.x+=(player.x-camera.x)*.09;
+  camera.y+=(player.y-camera.y)*.09;
+ }
+ requestAnimationFrame(update);
+}
+update();
+
+function interact(){
+ if(inside){
+  inside=null;
+  notice('Вы вышли на улицу');
+  return;
+ }
+ const b=buildings.find(b=>Math.hypot(player.x-b.x,player.y-b.y)<115);
+ if(!b){notice('Подойдите к двери здания');return}
+ inside=b;
+ notice('Вы вошли: '+b.name);
+}
+function notice(t){document.getElementById('notice').textContent=t}
+function openModal(title,html){
+ document.getElementById('modalTitle').textContent=title;
+ document.getElementById('modalContent').innerHTML=html;
+ document.getElementById('modal').style.display='flex';
+}
+function closeModal(){document.getElementById('modal').style.display='none'}
+function openMenu(name){
+ if(name==='Магазин'){
+  openModal('🛒 Магазин',
+  `<p>Одежда — 100 $</p><button onclick="buy('Одежда',100)">Купить</button>
+   <p>Шапка — 150 $</p><button onclick="buy('Шапка',150)">Купить</button>
+   <p>Красивая одежда — 250 $</p><button onclick="buy('Красивая одежда',250)">Купить</button>`);
+ }else if(name==='Работа'){
+  openModal('💼 Работа',
+  `<p>Работа курьером</p><p>Награда: 100 $</p><button onclick="work()">Выполнить задание</button>`);
+ }else if(name==='Инвентарь'){
+  openModal('🎒 Инвентарь',inventory.length?inventory.map(i=>'<p>🎁 '+i+'</p>').join(''):'<p>Пока пусто</p>');
+ }else if(name==='Семья'){
+  openModal('❤️ Семья','<p>Семейные функции скоро появятся.</p>');
+ }else{
+  openModal('🗺 Карта','<p>Центральный район LIVE FAMILY</p><p>Дома · Магазин · Работа</p>');
+ }
+}
+function buy(item,cost){
+ if(money<cost){notice('Недостаточно денег');return}
+ money-=cost;inventory.push(item);save();updateMoney();
+ notice('Куплено: '+item);closeModal();
+}
+function work(){
+ money+=100;save();updateMoney();closeModal();
+ notice('Вы заработали 100 $');
+}
+function updateMoney(){
+ document.getElementById('money').textContent=money;
+}
+updateMoney();
+
+function sendMessage(){
+ const input=document.getElementById('message');
+ if(!input.value.trim())return;
+ const div=document.createElement('div');
+ div.textContent=nickname+': '+input.value;
+ document.getElementById('messages').appendChild(div);
+ input.value='';
+}
+addEventListener('keydown',e=>{
+ const k=e.key.toLowerCase();
+ if(k==='w'||k==='arrowup')movement.y=-1;
+ if(k==='s'||k==='arrowdown')movement.y=1;
+ if(k==='a'||k==='arrowleft')movement.x=-1;
+ if(k==='d'||k==='arrowright')movement.x=1;
+ if(k==='e')interact();
+ if(k==='shift')running=true;
+});
+addEventListener('keyup',e=>{
+ const k=e.key.toLowerCase();
+ if(['w','s','a','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k))stopMove();
+ if(k==='shift')running=false;
+});
 </script>
-</div></body></html>
+</body>
+</html>
+.
