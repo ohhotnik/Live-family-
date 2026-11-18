@@ -1,408 +1,329 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>LIVE FAMILY 2D</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#10151d;color:#fff;font:14px Arial;overflow:hidden;touch-action:none}
-#game{position:fixed;inset:0;background:#79a85d}
-canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
-.top{position:fixed;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;gap:6px;pointer-events:none}
-.panel{background:#171326ef;border:2px solid #a64cff;border-radius:12px;padding:8px;box-shadow:0 0 12px #7c25c9}
-.top .panel{font-weight:bold}
-.left{position:fixed;left:8px;top:72px;display:grid;gap:6px}
-button{background:#38204f;color:white;border:1px solid #bd75ff;border-radius:9px;padding:9px 10px;font-weight:bold}
-button:active{background:#8244bd}
-.right{position:fixed;right:8px;top:72px;display:grid;gap:6px}
-#joy{position:fixed;left:18px;bottom:18px;width:112px;height:112px;border-radius:50%;background:#17132699;border:2px solid #d49aff;display:grid;place-items:center}
-#nub{width:44px;height:44px;border-radius:50%;background:#b65cff;border:2px solid white}
-.actions{position:fixed;right:14px;bottom:18px;display:grid;grid-template-columns:repeat(2,64px);gap:7px}
-#toast{position:fixed;left:50%;top:62px;transform:translateX(-50%);max-width:80%;text-align:center}
-#modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;padding:16px}
-#modal .panel{width:min(420px,100%);max-height:85vh;overflow:auto}
-#modal h2{margin:2px 0 12px;color:#d6a2ff}
-#cmd{width:100%;padding:11px;border-radius:8px;background:#0e0b17;color:white;border:1px solid #a64cff;margin:8px 0}
-.small{opacity:.8;font-size:12px}
-@media(min-width:700px){.left{top:90px}.right{top:90px}}
+body{margin:0;background:#171729;color:white;font-family:Arial;overflow:hidden}
+button,input,select{border:0;border-radius:10px;padding:10px;font-size:14px}
+button{background:#8955e9;color:white;font-weight:bold}
+button:active{transform:scale(.95)}
+#creator{position:absolute;inset:0;z-index:10;background:#171329;display:flex;align-items:center;justify-content:center;padding:15px}
+.panel{background:#28213f;border-radius:18px;padding:18px;width:min(420px,100%);max-height:95vh;overflow:auto}
+.panel h1{text-align:center;color:#c6a3ff}
+.panel input,.panel select{display:block;width:100%;margin:7px 0;background:#413957;color:white}
+#game{display:none}
+canvas{width:100vw;height:100dvh;display:block;image-rendering:pixelated}
+#top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;gap:5px}
+.info{background:#171729dd;padding:9px;border-radius:10px;font-size:12px}
+#buttons{position:absolute;top:55px;right:8px;display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+#buttons button{font-size:11px;padding:9px 5px}
+#stick{position:absolute;bottom:22px;left:18px;width:112px;height:112px;border-radius:50%;background:#ffffff25;border:2px solid #ffffff55;touch-action:none}
+#knob{position:absolute;width:44px;height:44px;border-radius:50%;background:#c7a6ff;left:32px;top:32px}
+#action{position:absolute;bottom:43px;right:20px;width:78px;height:78px;border-radius:50%;background:#a855f7}
+#chat{position:absolute;bottom:145px;left:8px;width:185px;background:#171729dd;padding:8px;border-radius:10px;font-size:11px}
+#chat input{width:100%;margin-top:5px;padding:7px;background:#403853;color:white}
+#modal{display:none;position:absolute;inset:0;background:#0009;z-index:8;align-items:center;justify-content:center;padding:12px}
+#modal .panel{max-width:380px}
+#toast{display:none;position:absolute;top:48px;left:50%;transform:translateX(-50%);background:#34264f;padding:10px;border-radius:10px;z-index:9}
 </style>
 </head>
 <body>
 
-<div id="game"><canvas id="world"></canvas></div>
-
-<div class="top">
- <div class="panel">💜 LIVE FAMILY<br><span class="small" id="nick">Игрок • Уровень 1</span></div>
- <div class="panel">💰 <span id="cash">2500</span><br>⭐ <span id="level">1</span></div>
+<div id="creator">
+<div class="panel">
+<h1>💜 LIVE FAMILY 2D</h1>
+<p style="text-align:center">Создай своего персонажа</p>
+<label>Имя</label>
+<input id="name" maxlength="16" placeholder="Твоё имя">
+<label>Пол</label>
+<select id="gender"><option>Мужской</option><option>Женский</option></select>
+<label>Профессия</label>
+<select id="job">
+<option>Житель</option><option>Полицейский</option>
+<option>Врач</option><option>Повар</option>
+<option>Таксист</option><option>Строитель</option>
+<option>Бизнесмен</option><option>Блогер</option>
+<option>Спасатель</option><option>Учитель</option>
+</select>
+<label>Цвет кожи</label>
+<select id="skin">
+<option value="#f1c6a5">Светлый</option>
+<option value="#bd805b">Смуглый</option>
+<option value="#75452f">Тёмный</option>
+</select>
+<label>Одежда</label>
+<select id="clothes">
+<option value="#9855ee">Фиолетовая</option>
+<option value="#267bea">Синяя</option>
+<option value="#df4e5b">Красная</option>
+<option value="#239c65">Зелёная</option>
+<option value="#e69b32">Оранжевая</option>
+</select>
+<button style="width:100%;margin-top:12px" onclick="startGame()">▶ НАЧАТЬ ИГРУ</button>
+</div>
 </div>
 
-<div class="left">
- <button onclick="openMenu('Персонаж','Выбери пол и имя персонажа.')">👤 Персонаж</button>
- <button onclick="openMenu('Магазин','Одежда • мебель • транспорт')">🛍 Магазин</button>
- <button onclick="openMenu('Работа','Выбери работу и получи игровую зарплату.')">💼 Работа</button>
- <button onclick="openMenu('Дом','Твой игровой дом и мебель.')">🏠 Дом</button>
- <button onclick="openFamily()">💜 Семья</button>
- <button onclick="openMenu('Карта','Город: парк, магазин, больница, дома.')">🗺 Карта</button>
- <button onclick="openCommands()">⌨ Команды</button>
+<div id="game">
+<canvas id="world"></canvas>
+<div id="top">
+<div class="info" id="playerInfo">Игрок</div>
+<div class="info" id="money">💰 1000</div>
 </div>
-
-<div class="right">
- <div class="panel">🧭 Мини-карта<br><canvas id="mini" width="100" height="76"></canvas></div>
- <button onclick="openMenu('Инвентарь','В инвентаре пока пусто.')">🎒 Инвентарь</button>
- <button onclick="toast('Чат доступен в онлайн-версии с сервером.')">💬 Чат</button>
+<div id="buttons">
+<button onclick="interact('Привет!')">👋 Привет</button>
+<button onclick="interact('Ты танцуешь!')">💃 Танец</button>
+<button onclick="interact('Ты дома!')">🏠 Дом</button>
+<button onclick="work()">💼 Работа</button>
+<button onclick="interact('Ты сел в машину!')">🚗 Машина</button>
+<button onclick="showCommands()">⌨ Команды</button>
+<button onclick="changeClothes()">👕 Одежда</button>
+<button onclick="showMap()">🗺 Карта</button>
+<button onclick="showFamily()">👨‍👩‍👧 Семья</button>
+<button onclick="showBots()">🤖 Боты</button>
 </div>
-
-<div id="joy"><div id="nub"></div></div>
-
-<div class="actions">
- <button onclick="toast('Персонаж побежал!')">🏃 Бег</button>
- <button onclick="toast('Прыжок!')">⬆ Прыжок</button>
- <button onclick="interact()">🤝 Действие</button>
- <button onclick="toast('Телефон открыт')">📱 Телефон</button>
+<div id="chat">
+<div id="messages">Добро пожаловать в город!</div>
+<input id="chatInput" placeholder="Сообщение..." onkeydown="if(event.key==='Enter')sendChat()">
 </div>
-
-<div id="toast" class="panel">Добро пожаловать в LIVE FAMILY!</div>
+<div id="stick"><div id="knob"></div></div>
+<button id="action" onclick="nearAction()">ДЕЙСТВИЕ</button>
+<div id="toast"></div>
+</div>
 
 <div id="modal">
- <div class="panel">
-  <h2 id="mtitle"></h2>
-  <div id="mbody"></div>
-  <button onclick="closeModal()">Закрыть</button>
- </div>
+<div class="panel">
+<h2 id="modalTitle">Меню</h2>
+<div id="modalContent"></div>
+<button style="width:100%;margin-top:12px" onclick="closeModal()">Закрыть</button>
+</div>
 </div>
 
 <script>
-const c=document.getElementById('world');
-const ctx=c.getContext('2d');
-const mini=document.getElementById('mini').getContext('2d');
+const canvas=document.getElementById('world');
+const ctx=canvas.getContext('2d');
+let W=0,H=0;
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight}
+resize();addEventListener('resize',resize);
 
-let W=0,H=0,px=480,py=360,keys={};
-let cash=2500;
-let bot={x:560,y:360,name:'Вика',follow:true};
+let player={x:500,y:500,name:'Игрок',job:'Житель',skin:'#f1c6a5',clothes:'#9855ee',money:1000};
+let bots=[],cars=[],trees=[],keys={};
+let joy={x:0,y:0},camera={x:0,y:0};
+let started=false,chatMessages=[];
+const buildings=[
+{x:150,y:130,w:190,h:140,c:'#d6a36c',name:'ДОМ'},
+{x:480,y:100,w:200,h:150,c:'#8daecb',name:'МАГАЗИН'},
+{x:850,y:160,w:200,h:160,c:'#b6a1d0',name:'ДОМ'},
+{x:150,y:650,w:220,h:155,c:'#c38b72',name:'БОЛЬНИЦА'},
+{x:610,y:650,w:230,h:160,c:'#8c9ea9',name:'ШКОЛА'},
+{x:1050,y:650,w:190,h:140,c:'#d3ad6e',name:'КАФЕ'}
+];
 
-let save=JSON.parse(localStorage.getItem('lf2d')||'{}');
-let family=save.family||{
- partner:'',
- child:'',
- month:0,
- start:0
-};
-
-function resize(){
- W=c.width=innerWidth*devicePixelRatio;
- H=c.height=innerHeight*devicePixelRatio;
-}
-addEventListener('resize',resize);
-resize();
-
-function toast(t){
- let e=document.getElementById('toast');
- e.textContent=t;
- e.style.display='block';
- clearTimeout(window.tt);
- window.tt=setTimeout(()=>e.style.display='none',2400);
-}
-
-function persist(){
- localStorage.setItem('lf2d',JSON.stringify({family,cash}));
+function startGame(){
+player.name=document.getElementById('name').value.trim()||'Игрок';
+player.job=document.getElementById('job').value;
+player.skin=document.getElementById('skin').value;
+player.clothes=document.getElementById('clothes').value;
+document.getElementById('creator').style.display='none';
+document.getElementById('game').style.display='block';
+document.getElementById('playerInfo').textContent='👤 '+player.name+' · '+player.job;
+makeBots();makeCars();makeTrees();started=true;loop();
 }
 
-function openMenu(title,body){
- document.getElementById('mtitle').textContent=title;
- document.getElementById('mbody').innerHTML='<p>'+body+'</p>';
- document.getElementById('modal').style.display='grid';
+function makeBots(){
+let names=['Вика','Максим','Аня','Дима','Саша','Маша','Илья','София','Артём','Катя','Даня','Лиза'];
+let jobs=['Житель','Полицейский','Врач','Повар','Таксист','Учитель'];
+for(let i=0;i<names.length;i++){
+bots.push({
+name:names[i],job:jobs[i%jobs.length],
+x:250+Math.random()*900,y:250+Math.random()*700,
+skin=['#f1c6a5','#bd805b','#75452f'][i%3],
+color=['#ef6585','#45b6a5','#e5a43c','#678ce8'][i%4],
+dx:Math.random()*2-1,dy:Math.random()*2-1,t:0
+});
+}
+}
+function makeCars(){
+for(let i=0;i<7;i++)cars.push({x:350+i*120,y:460+(i%2)*45,c:['#df5050','#3885d8','#e6bb42','#eeeeee'][i%4]});
+}
+function makeTrees(){
+for(let i=0;i<65;i++)trees.push({x:Math.random()*1600,y:Math.random()*1300});
+}
+function rect(x,y,w,h,c){
+ctx.fillStyle=c;ctx.fillRect(x-camera.x,y-camera.y,w,h);
+}
+function drawWorld(){
+ctx.fillStyle='#78a96b';ctx.fillRect(0,0,W,H);
+rect(0,420,1600,180,'#777b83');
+rect(720,0,150,1300,'#777b83');
+for(let x=0;x<1600;x+=65)rect(x,507,35,5,'#e8d58a');
+for(let y=0;y<1300;y+=65)rect(790,y,5,35,'#e8d58a');
+
+for(let t of trees){
+rect(t.x-15,t.y-18,52,42,'#26734a');
+rect(t.x-7,t.y-28,36,28,'#39945b');
+rect(t.x,t.y+20,12,20,'#70452e');
+}
+for(let b of buildings){
+rect(b.x+7,b.y+9,b.w,b.h,'#46534c');
+rect(b.x,b.y,b.w,b.h,b.c);
+rect(b.x+12,b.y+12,b.w-24,22,'#eeeae0');
+for(let wx=b.x+25;wx<b.x+b.w-25;wx+=55){
+rect(wx,b.y+52,28,35,'#9ed6e8');
+rect(wx,b.y+105,28,25,'#9ed6e8');
+}
+rect(b.x+b.w/2-18,b.y+b.h-45,36,45,'#654637');
+ctx.fillStyle='white';ctx.font='bold 13px Arial';
+ctx.fillText(b.name,b.x-camera.x+10,b.y-camera.y-8);
+}
+for(let c of cars){
+rect(c.x,c.y,65,30,c.c);
+rect(c.x+10,c.y-9,38,13,'#a9dbe9');
+rect(c.x+8,c.y+25,12,10,'#25252b');
+rect(c.x+48,c.y+25,12,10,'#25252b');
+}
+}
+function drawPerson(p,isPlayer=false){
+let x=p.x-camera.x,y=p.y-camera.y;
+rect(x-9,y-15,18,23,isPlayer?p.clothes:p.color);
+ctx.fillStyle=p.skin||'#efc29d';
+ctx.fillRect(x-8,y-29,16,15);
+ctx.fillStyle='#29212a';
+ctx.fillRect(x-8,y-32,16,5);
+ctx.fillStyle='white';ctx.font='11px Arial';ctx.textAlign='center';
+ctx.fillText(p.name,x,y-38);
+if(!isPlayer){
+ctx.font='9px Arial';ctx.fillText(p.job,x,y-47);
+}
+ctx.textAlign='left';
+}
+function updateBots(){
+for(let b of bots){
+b.t++;
+if(b.t>70){
+b.dx=Math.random()*2-1;b.dy=Math.random()*2-1;b.t=0;
+}
+b.x+=b.dx*.7;b.y+=b.dy*.7;
+b.x=Math.max(20,Math.min(1550,b.x));
+b.y=Math.max(20,Math.min(1250,b.y));
+}
+}
+function loop(){
+if(!started)return;
+let dx=joy.x+(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0);
+let dy=joy.y+(keys.ArrowDown?1:0)-(keys.ArrowUp?1:0);
+let len=Math.hypot(dx,dy)||1;
+player.x=Math.max(20,Math.min(1550,player.x+dx/len*3.2));
+player.y=Math.max(20,Math.min(1250,player.y+dy/len*3.2));
+updateBots();
+camera.x=Math.max(0,Math.min(1600-W,player.x-W/2));
+camera.y=Math.max(0,Math.min(1300-H,player.y-H/2));
+drawWorld();
+for(let b of bots)drawPerson(b);
+drawPerson(player,true);
+requestAnimationFrame(loop);
 }
 
-function closeModal(){
- document.getElementById('modal').style.display='none';
+const stick=document.getElementById('stick');
+const knob=document.getElementById('knob');
+let pointer=null;
+function moveStick(e){
+let r=stick.getBoundingClientRect();
+let x=e.clientX-r.left-56,y=e.clientY-r.top-56;
+let len=Math.hypot(x,y),max=35;
+if(len>max){x=x/len*max;y=y/len*max}
+joy.x=x/max;joy.y=y/max;
+knob.style.left=(32+x)+'px';knob.style.top=(32+y)+'px';
 }
+stick.addEventListener('pointerdown',e=>{pointer=e.pointerId;stick.setPointerCapture(pointer);moveStick(e)});
+stick.addEventListener('pointermove',e=>{if(pointer===e.pointerId)moveStick(e)});
+function resetStick(){pointer=null;joy.x=0;joy.y=0;knob.style.left='32px';knob.style.top='32px'}
+stick.addEventListener('pointerup',resetStick);
+stick.addEventListener('pointercancel',resetStick);
+addEventListener('keydown',e=>{keys[e.key]=true});
+addEventListener('keyup',e=>{keys[e.key]=false});
 
-function openFamily(){
- let s=family.partner?'Партнёр: '+family.partner:'Партнёр пока не выбран';
- let child=family.child?'Ребёнок: '+family.child:'Детей пока нет';
- let month=family.start?
- Math.min(9,Math.floor((Date.now()-family.start)/86400000)+1):0;
-
- openMenu('Семья',
- `${s}<br>${child}<br>
- Месяц семейного события: ${month}/9<br><br>
- <button onclick="chooseBot()">Выбрать бота-партнёра</button>
- <button onclick="sweetNight()">Романтический вечер</button>
- <button onclick="pregnancy()">Семейное событие</button>
- <button onclick="birth()">Рождение ребёнка</button>`);
+function toast(s){
+let t=document.getElementById('toast');
+t.textContent=s;t.style.display='block';
+clearTimeout(toast.timer);
+toast.timer=setTimeout(()=>t.style.display='none',2200);
 }
-
-function chooseBot(){
- family.partner='Вика (бот)';
- bot.follow=true;
- persist();
- toast('Вика теперь твой игровой партнёр!');
- openFamily();
+function say(s){
+document.getElementById('messages').textContent=s;
+toast(s);
 }
-
-function sweetNight(){
- if(!family.partner){
-  toast('Сначала выбери партнёра.');
-  return;
- }
- toast('🌙 Вы провели романтический вечер.');
- closeModal();
+function interact(s){say(s)}
+function work(){
+player.money+=100;
+document.getElementById('money').textContent='💰 '+player.money;
+say('Ты поработал! Получено 100 монет.');
 }
-
-function pregnancy(){
- if(!family.partner){
-  toast('Сначала выбери партнёра.');
-  return;
- }
- family.start=Date.now();
- family.month=1;
- persist();
- toast('Семейный сюжет начался. Срок: 1 игровой месяц.');
- openFamily();
+function nearAction(){
+let b=bots.find(b=>Math.hypot(b.x-player.x,b.y-player.y)<90);
+if(b)say(b.name+': Привет! Как дела?');
+else say('Ты осматриваешь город.');
 }
-
-function birth(){
- if(!family.start){
-  toast('Сначала начни семейное событие.');
-  return;
- }
-
- let m=Math.min(9,Math.floor((Date.now()-family.start)/86400000)+1);
-
- if(m<9){
-  toast('Ещё рано: прошло '+m+' из 9 игровых месяцев.');
-  return;
- }
-
- family.child='Сын';
- family.start=0;
- persist();
- toast('👶 В семье появился сын!');
- openFamily();
+function sendChat(){
+let input=document.getElementById('chatInput');
+let v=input.value.trim();if(!v)return;
+say(player.name+': '+v);input.value='';
 }
-
-function openCommands(){
- openMenu('Команды',
- `<p>
- /help — список команд<br>
- /partner — найти партнёра<br>
- /botpartner — выбрать бота<br>
- /follow — бот следует за тобой<br>
- /stopfollow — остановить бота<br>
- /sweetnight — романтический вечер<br>
- /pregnancy — семейный сюжет<br>
- /month — срок в игровых месяцах<br>
- /birth — рождение ребёнка<br>
- /family — открыть семью<br>
- /home — домой<br>
- /car — транспорт<br>
- /money — деньги
- </p>
- <input id="cmd" placeholder="Введи команду">
- <button onclick="runCommand()">Выполнить</button>`);
+function openModal(title,html){
+document.getElementById('modalTitle').textContent=title;
+document.getElementById('modalContent').innerHTML=html;
+document.getElementById('modal').style.display='flex';
 }
-
+function closeModal(){document.getElementById('modal').style.display='none'}
+function showCommands(){
+openModal('⌨ Команды',`
+<p>/help — список команд</p>
+<p>/money — показать деньги</p>
+<p>/job — работа</p>
+<p>/home — домой</p>
+<p>/dance — танцевать</p>
+<p>/hello — привет</p>
+<p>/bots — жители города</p>
+<p>/family — семья</p>
+<p>/car — транспорт</p>
+<input id="cmdInput" placeholder="Введи команду">
+<button onclick="runCommand()">Выполнить</button>`);
+}
 function runCommand(){
- let v=document.getElementById('cmd').value.trim().toLowerCase();
- closeModal();
-
- let map={
- '/help':openCommands,
- '/partner':()=>toast('Используй /botpartner для игрового бота.'),
- '/botpartner':chooseBot,
- '/follow':()=>{
-  bot.follow=true;
-  toast('Бот следует за тобой');
- },
- '/stopfollow':()=>{
-  bot.follow=false;
-  toast('Бот остановился');
- },
- '/sweetnight':sweetNight,
- '/pregnancy':pregnancy,
- '/birth':birth,
- '/family':openFamily,
- '/home':()=>{
-  px=480;
-  py=360;
-  toast('Ты дома');
- },
- '/car':()=>toast('Машина появится в гараже в следующей версии.'),
- '/money':()=>toast('Деньги: '+cash),
- '/month':()=>{
-  toast(family.start?
-  'Месяц '+Math.min(9,Math.floor((Date.now()-family.start)/86400000)+1)+' из 9':
-  'Семейное событие не началось');
- }
- };
-
- if(map[v])map[v]();
- else toast('Команда не найдена. Напиши /help');
+let c=document.getElementById('cmdInput').value.toLowerCase().trim();
+closeModal();
+if(c==='/help')showCommands();
+else if(c==='/money')say('Твои деньги: '+player.money);
+else if(c==='/job')work();
+else if(c==='/home')say('Ты пришёл домой.');
+else if(c==='/dance')say('Ты танцуешь!');
+else if(c==='/hello')say('Ты поздоровался с жителями.');
+else if(c==='/bots')showBots();
+else if(c==='/family')showFamily();
+else if(c==='/car')say('Ты сел в машину.');
+else say('Неизвестная команда. Напиши /help');
 }
-
-function interact(){
- toast('Рядом нет объекта для взаимодействия.');
+function showBots(){
+let list=bots.map(b=>'<p>🤖 '+b.name+' — '+b.job+'</p>').join('');
+openModal('Жители города',list);
 }
-
-let joy=document.getElementById('joy');
-let nub=document.getElementById('nub');
-let moving=false,dx=0,dy=0;
-
-joy.addEventListener('pointerdown',e=>{
- moving=true;
- joy.setPointerCapture(e.pointerId);
- moveJoy(e);
-});
-
-joy.addEventListener('pointermove',e=>{
- if(moving)moveJoy(e);
-});
-
-joy.addEventListener('pointerup',()=>{
- moving=false;
- dx=dy=0;
- nub.style.transform='translate(0,0)';
-});
-
-function moveJoy(e){
- let r=joy.getBoundingClientRect();
- let x=e.clientX-r.left-r.width/2;
- let y=e.clientY-r.top-r.height/2;
- let l=Math.hypot(x,y)||1;
-
- x*=Math.min(1,42/l);
- y*=Math.min(1,42/l);
-
- dx=x/42;
- dy=y/42;
-
- nub.style.transform=`translate(${x}px,${y}px)`;
+function showFamily(){
+openModal('👨‍👩‍👧 Семья',
+'<p>Добро пожаловать в семейную жизнь!</p><p>Здесь можно общаться с жителями, обустраивать дом и заботиться о семье.</p><button onclick="say(\'Ты проводишь время с семьёй!\');closeModal()">Провести время вместе</button>');
 }
-
-function rect(x,y,w,h,col){
- ctx.fillStyle=col;
- ctx.fillRect(x,y,w,h);
+function showMap(){
+openModal('🗺 Карта города',
+'<p>🏠 Дома</p><p>🏥 Больница</p><p>🏫 Школа</p><p>🛒 Магазин</p><p>☕ Кафе</p><p>🚗 Парковка</p>');
 }
-
-function draw(){
- ctx.setTransform(1,0,0,1,0,0);
- ctx.clearRect(0,0,W,H);
- ctx.scale(devicePixelRatio,devicePixelRatio);
-
- let sw=innerWidth,sh=innerHeight;
-
- ctx.save();
- ctx.translate(sw/2-px,sh/2-py);
-
- rect(-2000,-2000,4000,4000,'#79a85d');
-
- // Дороги
- rect(-2000,250,4000,150,'#777b7c');
- rect(250,-2000,150,4000,'#777b7c');
-
- for(let i=-1800;i<1800;i+=90){
-  rect(i,322,45,6,'#f5e7a5');
-  rect(322,i,6,45,'#f5e7a5');
- }
-
- // Здания
- let buildings=[
-  [-250,30,150,130,'#d9b47a','МАГАЗИН'],
-  [500,20,170,140,'#bd8eae','ДОМ'],
-  [-250,500,160,130,'#d6d1bd','РАБОТА'],
-  [520,500,160,130,'#9bb9d0','КЛИНИКА']
- ];
-
- for(let b of buildings){
-  rect(b[0],b[1],b[2],b[3],b[4]);
-  rect(b[0]+12,b[1]+12,b[2]-24,22,'#63465c');
-
-  ctx.fillStyle='white';
-  ctx.font='bold 14px Arial';
-  ctx.fillText(b[5],b[0]+22,b[1]+29);
-
-  for(let x=b[0]+25;x<b[0]+b[2]-15;x+=45){
-   rect(x,b[1]+55,22,30,'#83c9df');
-  }
- }
-
- // Деревья
- for(let x=-500;x<900;x+=150){
-  for(let y=-300;y<850;y+=150){
-   if(Math.abs(x)<150&&Math.abs(y)<180)continue;
-
-   rect(x,y,22,30,'#80552f');
-   ctx.fillStyle='#347e43';
-   ctx.beginPath();
-   ctx.arc(x+11,y,27,0,7);
-   ctx.fill();
-  }
- }
-
- drawPerson(px,py,'#7c3aed','Ты');
- drawPerson(bot.x,bot.y,'#e56b9c',bot.name);
-
- ctx.restore();
-
- // Мини-карта
- mini.fillStyle='#18251b';
- mini.fillRect(0,0,100,76);
-
- mini.fillStyle='#777';
- mini.fillRect(0,33,100,10);
- mini.fillRect(45,0,10,76);
-
- mini.fillStyle='#b65cff';
- mini.fillRect(47,35,5,5);
-
- mini.fillStyle='#f58ab5';
- mini.fillRect(57,38,4,4);
-
- requestAnimationFrame(draw);
+function changeClothes(){
+let colors=['#9855ee','#267bea','#df4e5b','#239c65','#e69b32','#eeeeee'];
+let i=colors.indexOf(player.clothes);
+player.clothes=colors[(i+1)%colors.length];
+say('Ты сменил одежду!');
 }
-
-function drawPerson(x,y,color,label){
- rect(x-9,y-3,18,18,'#4b382d');
-
- ctx.fillStyle=color;
- ctx.fillRect(x-10,y-20,20,22);
-
- ctx.fillStyle='#f2c6a0';
- ctx.fillRect(x-8,y-34,16,14);
-
- ctx.fillStyle='#fff';
- ctx.font='12px Arial';
- ctx.textAlign='center';
- ctx.fillText(label,x,y-40);
-}
-
-let last=0;
-
-function update(t){
- let dt=Math.min(.04,(t-last)/1000||0);
- last=t;
-
- px+=dx*150*dt;
- py+=dy*150*dt;
-
- if(bot.follow){
-  let ax=px-bot.x;
-  let ay=py-bot.y;
-  let d=Math.hypot(ax,ay);
-
-  if(d>42){
-   bot.x+=ax/d*95*dt;
-   bot.y+=ay/d*95*dt;
-  }
- }
-
- requestAnimationFrame(update);
-}
-
-draw();
-requestAnimationFrame(update);
 </script>
 </body>
 </html>
