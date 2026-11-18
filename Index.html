@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LIVE FAMILY</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#101522;color:white;
+ font-family:Arial,sans-serif;
+}
+.screen{
+ min-height:100dvh;padding:20px;
+ display:flex;flex-direction:column;
+ align-items:center;justify-content:center;
+}
+.panel{
+ width:100%;max-width:430px;
+ background:#202b40;padding:20px;
+ border-radius:18px;margin:10px 0;
+}
+h1{color:#ffae48;text-align:center}
+button{
+ border:0;border-radius:10px;padding:14px;
+ background:#ff9d38;color:#171717;
+ font-weight:bold;font-size:16px;
+}
+input{
+ width:100%;padding:14px;border:0;
+ border-radius:9px;background:#35445e;
+ color:white;font-size:16px;margin:7px 0;
+}
+.hidden{display:none}
+.characters{display:flex;gap:10px}
+.characters button{flex:1}
+#messages{
+ height:240px;overflow:auto;
+ background:#111827;padding:10px;
+ border-radius:10px;margin:10px 0;
+}
+.msg{background:#35445e;padding:9px;
+ border-radius:8px;margin:6px 0;overflow-wrap:anywhere}
+.row{display:flex;gap:8px}
+.row input{flex:1;min-width:0}
+</style>
+</head>
+<body>
+
+<section id="menu" class="screen">
+ <div class="panel">
+  <h1>❤️ LIVE FAMILY</h1>
+  <p style="text-align:center">Симулятор семейной жизни</p>
+  <h3>Выбери персонажа</h3>
+  <div class="characters">
+   <button onclick="choose('boy')">👦 Мальчик</button>
+   <button onclick="choose('girl')">👧 Девушка</button>
+  </div>
+  <input id="playerName" placeholder="Имя персонажа">
+  <button style="width:100%" onclick="startGame()">
+   ИГРАТЬ
+  </button>
+ </div>
+</section>
+
+<section id="game" class="screen hidden">
+ <div class="panel">
+  <h1>LIVE FAMILY</h1>
+  <p>Персонаж: <b id="name"></b></p>
+  <p>Деньги: <b id="money">0</b> ₽</p>
+  <p>Защита: <b id="protection">ВЫКЛ</b></p>
+ </div>
+
+ <div class="panel">
+  <h3>Игровой чат</h3>
+  <div id="messages">
+   <div class="msg">Добро пожаловать! Напиши /help</div>
+  </div>
+  <div class="row">
+   <input id="command" placeholder="Команда...">
+   <button onclick="sendCommand()">OK</button>
+  </div>
+ </div>
+</section>
+
+<script>
+let character = "";
+let playerName = "Игрок";
+let money = 0;
+let protection = false;
+
+function choose(type){
+ character=type;
+ document.querySelectorAll(".characters button")
+ .forEach((b,i)=>{
+  b.style.outline =
+   ((i===0 && type==="boy") ||
+    (i===1 && type==="girl"))
+    ? "3px solid white" : "none";
+ });
+}
+
+function startGame(){
+ if(!character){
+  alert("Выбери мальчика или девушку");
+  return;
+ }
+ playerName =
+ document.getElementById("playerName").value.trim()
+ || "Игрок";
+
+ document.getElementById("name").textContent=playerName;
+ document.getElementById("menu").classList.add("hidden");
+ document.getElementById("game").classList.remove("hidden");
+ saveGame();
+}
+
+function say(text){
+ const el=document.createElement("div");
+ el.className="msg";
+ el.textContent=text;
+ const box=document.getElementById("messages");
+ box.appendChild(el);
+ box.scrollTop=box.scrollHeight;
+}
+
+function update(){
+ document.getElementById("money").textContent=
+ money.toLocaleString("ru-RU");
+ document.getElementById("protection").textContent=
+ protection?"ВКЛ":"ВЫКЛ";
+ document.getElementById("name").textContent=playerName;
+}
+
+function saveGame(){
+ localStorage.setItem("liveFamily",JSON.stringify({
+  character,playerName,money,protection
+ }));
+}
+
+function sendCommand(){
+ const input=document.getElementById("command");
+ const parts=input.value.trim().split(/\s+/);
+ const cmd=(parts[0]||"").toLowerCase();
+ const arg=parts[1];
+
+ if(!cmd)return;
+ say("> "+input.value);
+
+ switch(cmd){
+
+ case "/givecash":{
+  const amount=Number(arg);
+  if(!Number.isSafeInteger(amount)||amount<=0){
+   say("Пример: /givecash 1000");
+   break;
+  }
+  money+=amount;
+  say("Получено "+amount+" игровых рублей");
+  break;
+ }
+
+ case "/name":
+  const newName=parts.slice(1).join(" ").trim();
+  if(!newName||newName.length>24){
+   say("Пример: /name Александр");
+   break;
+  }
+  playerName=newName;
+  say("Имя изменено: "+playerName);
+  break;
+
+ case "/prezik":
+  if(arg==="on")protection=true;
+  else if(arg==="off")protection=false;
+  else say("Защита: "+(protection?"ВКЛ":"ВЫКЛ"));
+  break;
+
+ case "/love":say("❤️ Романтическое событие");break;
+ case "/hug":say("🤗 Персонажи обнялись");break;
+ case "/kiss":say("❤️ Персонажи поцеловались");break;
+ case "/dance":say("💃 Начался танец");break;
+ case "/family":say("👨‍👩‍👧 Семейное событие");break;
+ case "/baby":say("👶 Семейное событие");break;
+ case "/marry":say("💍 Свадебное событие");break;
+ case "/sit":say("Персонаж сел");break;
+ case "/sleep":say("Персонаж отдыхает");break;
+
+ case "/help":
+  say("/givecash сумма, /name имя, /prezik on/off, /love, /hug, /kiss, /dance, /family, /baby, /marry, /sit, /sleep");
+  break;
+
+ default:
+  say("Неизвестная команда. Напиши /help");
+ }
+
+ update();
+ saveGame();
+ input.value="";
+}
+
+document.getElementById("command")
+.addEventListener("keydown",e=>{
+ if(e.key==="Enter")sendCommand();
+});
+
+function loadGame(){
+ try{
+  const data=JSON.parse(
+   localStorage.getItem("liveFamily")
+  );
+  if(!data)return;
+  character=data.character||"";
+  playerName=data.playerName||"Игрок";
+  money=data.money||0;
+  protection=!!data.protection;
+ }catch(e){}
+}
+
+loadGame();
+</script>
+</body>
+</html>
