@@ -1,384 +1,115 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=no">
-<title>LIVE FAMILY</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>LIVE FAMILY — Кайсар</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#151b25;color:white;font-family:Arial;overflow:hidden}
-canvas{display:block;width:100vw;height:100dvh;image-rendering:pixelated}
-#hud{
- position:fixed;top:10px;left:10px;right:10px;
- display:flex;justify-content:space-between;gap:8px;
- pointer-events:none
-}
-.panel{background:#172333dd;border:2px solid #536b7d;
- border-radius:10px;padding:9px;font-size:13px}
-#hint{position:fixed;top:70px;left:50%;transform:translateX(-50%);
- background:#172333e8;padding:10px;border-radius:9px;
- display:none;text-align:center}
-#controls{position:fixed;bottom:20px;left:0;right:0;
- display:flex;justify-content:space-between;padding:0 18px;
- pointer-events:none}
-.group{display:flex;gap:12px;pointer-events:auto}
-button{border:2px solid #9bb4c9;background:#263d52;color:white;
- border-radius:15px;min-width:58px;height:58px;font-size:22px;
- touch-action:none}
-button:active{background:#527b9d}
-#action{font-size:13px;width:75px}
-#menu{position:fixed;inset:0;background:#101923dd;
- display:flex;align-items:center;justify-content:center}
-#box{background:#203246;padding:25px;border:3px solid #8ba8bd;
- border-radius:15px;text-align:center;width:min(90%,360px)}
-#box input{padding:12px;width:100%;margin:12px 0;border-radius:8px;border:0}
-#box button{width:100%;height:48px;font-size:16px}
+:root{--ink:#090b18;--panel:#111326;--purple:#7839dc;--pink:#ed6bdc;--line:#b9a0ff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#17213a;color:#fff;font-family:system-ui,Arial,sans-serif}
+#game{position:relative;width:100%;height:100%;min-height:520px;background:#78c9ed;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.panel{background:rgba(8,10,24,.96);border:3px solid #e8e1ff;box-shadow:0 0 0 2px #34265b,0 5px 0 #050611;border-radius:12px}
+#hud{position:absolute;top:10px;left:10px;padding:9px 12px;min-width:205px;display:flex;gap:10px;align-items:center}
+.avatar{width:54px;height:58px;border:2px solid #9b70ff;border-radius:8px;background:linear-gradient(#30214d,#121222);display:grid;place-items:center;font-size:34px}
+.small{font-size:12px;color:#d6d2e9}.money{color:#ffe36b;font-weight:800}
+#map{position:absolute;right:10px;top:10px;width:122px;padding:7px;text-align:center;font-weight:800}
+#map canvas{position:relative;width:100%;height:76px;border:2px solid #8a75b7;border-radius:5px;display:block;margin-top:4px}
+#menu{position:absolute;left:10px;top:105px;width:145px;padding:6px}
+.menuBtn{width:100%;padding:9px 7px;margin:2px 0;border:1px solid #332b55;border-radius:7px;background:#15172c;color:white;text-align:left;font-size:14px}
+.menuBtn.active,.action{background:linear-gradient(100deg,#5120a8,#853ce3);border:2px solid #c5a5ff}
+#dialog{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);width:min(620px,calc(100% - 20px));padding:12px 14px;display:flex;gap:12px;align-items:center;min-height:102px}
+#portrait{font-size:48px;width:62px;text-align:center}
+#dialogText{font-size:15px;line-height:1.35;flex:1}
+#dialogName{font-weight:900;color:#e9c6ff;margin-bottom:4px}
+#controls{position:absolute;bottom:130px;left:14px;display:grid;grid-template-columns:42px 42px 42px;grid-template-rows:42px 42px 42px;gap:3px}
+.ctrl{background:#213750;border:2px solid #a9c7e7;border-radius:10px;color:white;font-size:20px}
+#up{grid-column:2}#left{grid-column:1;grid-row:2}#down{grid-column:2;grid-row:3}#right{grid-column:3;grid-row:2}
+#act{position:absolute;right:14px;bottom:142px;padding:14px 16px;border-radius:18px;color:white;font-weight:900}
+#modal{position:absolute;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:18px}
+#modal.show{display:flex}
+.modalBox{width:min(430px,100%);padding:17px;background:#0c0d20;border:3px solid #c4a4ff;border-radius:14px;box-shadow:0 0 0 3px #3c246e}
+.modalBox h2{margin:0 0 12px;color:#e6c5ff;font-size:21px}
+.modalBox p{line-height:1.5}
+.close,.buy{padding:10px 16px;border:2px solid #c8a8ff;border-radius:9px;background:#632bb6;color:white;font-weight:800}
+.skinGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.skin{padding:8px 3px;border:2px solid #51436f;background:#17182d;color:white;border-radius:8px;font-size:25px}
+.skin.selected{border-color:#f08af0;background:#3a235d}
+@media(max-width:520px){#hud{min-width:180px}.avatar{width:44px;height:48px;font-size:28px}#map{width:100px}#menu{top:94px;width:128px}.menuBtn{font-size:12px;padding:8px 5px}#controls{bottom:125px;transform:scale(.9);transform-origin:left bottom}#act{bottom:138px;padding:12px 10px;font-size:12px}#dialog{bottom:8px;min-height:94px}#dialogText{font-size:13px}}
 </style>
 </head>
 <body>
-
-<canvas id="game"></canvas>
-
-<div id="hud">
- <div class="panel">
-  <b>LIVE FAMILY</b><br>
-  <span id="nickname">Игрок</span>
- </div>
- <div class="panel">
-  💰 <span id="money">1000</span> ₽<br>
-  💼 <span id="job">Без работы</span>
- </div>
-</div>
-
-<div id="hint"></div>
-
+<div id="game">
+<canvas id="world"></canvas>
+<div id="hud" class="panel"><div class="avatar" id="hudFace">🧑🏻</div><div><b>LIVE FAMILY</b><div><span id="playerName">Кайсар</span> ♡ · Ур. 1</div><div class="small">XP <span id="xp">0</span>/100</div><div class="money">🪙 <span id="cash">1000</span> ₽</div></div></div>
+<div id="map" class="panel">КАРТА<canvas id="mini"></canvas></div>
+<nav id="menu" class="panel">
+<button class="menuBtn active" data-open="home">⌂ Дом</button>
+<button class="menuBtn" data-open="shop">🛒 Магазин</button>
+<button class="menuBtn" data-open="skins">👕 Скин</button>
+<button class="menuBtn" data-open="work">💼 Работа</button>
+<button class="menuBtn" data-open="family">♡ Семья</button>
+<button class="menuBtn" data-open="inventory">🎒 Инвентарь</button>
+<button class="menuBtn" data-open="secrets">✦ Секреты</button>
+<button class="menuBtn" data-open="map">⌖ Карта</button>
+</nav>
 <div id="controls">
- <div class="group">
-  <button id="left">◀</button>
-  <button id="right">▶</button>
- </div>
- <div class="group">
-  <button id="action">ДЕЙСТВИЕ</button>
-  <button id="jump">⬆</button>
- </div>
+<button class="ctrl" id="up">▲</button><button class="ctrl" id="left">◀</button><button class="ctrl" id="down">▼</button><button class="ctrl" id="right">▶</button>
 </div>
-
-<div id="menu">
- <div id="box">
-  <h1>LIVE FAMILY</h1>
-  <p>Добро пожаловать в город!</p>
-  <input id="name" maxlength="16" placeholder="Имя персонажа">
-  <button id="start">НАЧАТЬ ИГРУ</button>
- </div>
+<button id="act" class="ctrl action">ДЕЙСТВИЕ</button>
+<div id="dialog" class="panel"><div id="portrait">🧑🏻</div><div><div id="dialogName">Кайсар</div><div id="dialogText">Добро пожаловать в LIVE FAMILY! Исследуй город, общайся с жителями и заходи в магазин.</div></div></div>
+<div id="modal"><div class="modalBox" id="modalContent"></div></div>
 </div>
-
 <script>
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-const hint=document.getElementById("hint");
-
-let W=innerWidth,H=innerHeight;
-function resize(){
- W=canvas.width=innerWidth;
- H=canvas.height=innerHeight;
+(()=>{
+const canvas=document.getElementById('world'),ctx=canvas.getContext('2d'),mini=document.getElementById('mini'),mctx=mini.getContext('2d');
+let W=0,H=0,scale=1,px=0,py=0,face='🧑🏻',cash=Number(localStorage.cash||1000),xp=0,skin=0,near='town';
+const skins=[['🧑🏻','Обычный',0],['👩🏻','Горожанка',250],['🧑🏽','Путешественник',350],['🧑🏻‍🦱','Кудрявый',500],['🧑🏻‍🎤','Музыкант',650],['🧝🏻','Фэнтези',800],['🧑🏿','Новый стиль',450],['👩🏽‍🦰','Рыжая',550]];
+const buildings=[{x:.08,y:.22,w:.22,h:.23,name:'ДОМ',color:'#d99665',kind:'home'},{x:.39,y:.18,w:.22,h:.27,name:'МАГАЗИН',color:'#d95a85',kind:'shop'},{x:.69,y:.2,w:.2,h:.25,name:'РАБОТА',color:'#596a9d',kind:'work'}];
+const npcs=[{x:.32,y:.51,emoji:'👩🏻',name:'Аня',line:'Привет! Хороший сегодня день.'},{x:.64,y:.52,emoji:'🧑🏻',name:'Дима',line:'Я работаю неподалёку. Загляни в офис!'},{x:.78,y:.65,emoji:'👩🏽',name:'Вика',line:'Привет, Кайсар! Рада тебя видеть.'}];
+function resize(){W=canvas.width=innerWidth*devicePixelRatio;H=canvas.height=innerHeight*devicePixelRatio;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);scale=1; if(!px){px=innerWidth*.52;py=innerHeight*.55}}
+addEventListener('resize',resize);resize();
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}
+function draw(){
+const w=innerWidth,h=innerHeight;ctx.clearRect(0,0,w,h);
+rect(0,0,w,h,'#83c9e9');rect(0,h*.72,w,h*.28,'#73b94c');
+for(let i=0;i<18;i++){let x=(i*137+31)%w,y=(i*79+17)%(h*.72);rect(x,y,4,4,'#b8e8a3')}
+rect(0,h*.43,w,h*.22,'#a99bb9');for(let x=0;x<w;x+=38)for(let y=h*.44;y<h*.65;y+=26){rect(x,y,34,2,'#8c819f')}
+buildings.forEach(b=>{let x=b.x*w,y=b.y*h,bw=b.w*w,bh=b.h*h;rect(x+5,y+bh-8,bw,bh*.12,'#73544b');rect(x,y,bw,bh,b.color);rect(x-5,y-9,bw+10,12,'#46334a');rect(x+bw*.4,y+bh*.62,bw*.2,bh*.38,'#604337');for(let j=0;j<3;j++){rect(x+bw*(.12+j*.34),y+bh*.28,bw*.17,bh*.22,'#8de0ef');rect(x+bw*(.12+j*.34)+bw*.075,y+bh*.28,bw*.02,bh*.22,'#eaf8ff')}ctx.fillStyle='#fff';ctx.font='bold 16px system-ui';ctx.textAlign='center';ctx.fillText(b.name,x+bw/2,y-16)});
+for(let i=0;i<10;i++){let x=(i*173+70)%w,y=h*.68+(i%3)*32;rect(x,y,18,24,'#87552e');rect(x-14,y-24,46,28,'#218c54');rect(x-7,y-39,32,22,'#32a95c')}
+npcs.forEach(n=>{ctx.font='28px serif';ctx.textAlign='center';ctx.fillText(n.emoji,n.x*w,n.y*h);ctx.font='11px system-ui';ctx.fillStyle='#fff';ctx.fillText(n.name,n.x*w,n.y*h+13)});
+ctx.textAlign='center';ctx.font='bold 12px system-ui';ctx.fillStyle='#101020';ctx.fillText('Кайсар ♡',px,py-28);ctx.font='30px serif';ctx.fillText(face,px,py);
+mctx.canvas.width=mini.clientWidth*devicePixelRatio;mctx.canvas.height=mini.clientHeight*devicePixelRatio;mctx.fillStyle='#5cae65';mctx.fillRect(0,0,mini.width,mini.height);mctx.fillStyle='#a99bb9';mctx.fillRect(0,mini.height*.4,mini.width,mini.height*.22);mctx.fillRect(mini.width*.45,0,mini.width*.13,mini.height);mctx.fillStyle='#f6e0aa';buildings.forEach(b=>mctx.fillRect(b.x*mini.width,b.y*mini.height,b.w*mini.width,b.h*mini.height));mctx.fillStyle='white';mctx.beginPath();mctx.arc(px/w*mini.width,py/h*mini.height,4*devicePixelRatio,0,Math.PI*2);mctx.fill();
+requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+function updateHud(){document.getElementById('cash').textContent=cash;document.getElementById('xp').textContent=xp;document.getElementById('hudFace').textContent=face;localStorage.cash=cash}
+function say(name,text,emoji='🧑🏻'){document.getElementById('dialogName').textContent=name;document.getElementById('dialogText').textContent=text;document.getElementById('portrait').textContent=emoji}
+function modal(title,body){document.getElementById('modalContent').innerHTML=`<h2>${title}</h2>${body}<p style="text-align:right"><button class="close" id="closeModal">Закрыть</button></p>`;document.getElementById('modal').classList.add('show');document.getElementById('closeModal').onclick=()=>document.getElementById('modal').classList.remove('show')}
+function open(which){
+document.querySelectorAll('.menuBtn').forEach(b=>b.classList.toggle('active',b.dataset.open===which));
+if(which==='secrets')modal('✦ Секреты ✦',`<p>У тебя есть одно особенное послание.</p><button class="buy" id="openSecret">Открыть секрет ♡</button><div id="secretText" style="display:none;color:#f18be8;text-align:center;font-weight:800;font-size:18px;line-height:1.5">Я тебя люблю, Вика!<br>Ты моя будущая жена.<br>Я тебя никогда не брошу. ♡</div>`),setTimeout(()=>{let b=document.getElementById('openSecret');if(b)b.onclick=()=>{document.getElementById('secretText').style.display='block';say('Кайсар','Я тебя люблю, Вика! Ты моя будущая жена. Я тебя никогда не брошу. ♡',face)}},0);
+else if(which==='skins')modal('👕 Магазин скинов',`<div class="skinGrid">${skins.map((s,i)=>`<button class="skin ${i===skin?'selected':''}" data-skin="${i}">${s[0]}</button>`).join('')}</div><p id="skinInfo">${skins[skin][1]} · ${skins[skin][2]} ₽</p><button class="buy" id="buySkin">Купить / надеть</button>`),setTimeout(()=>{document.querySelectorAll('[data-skin]').forEach(b=>b.onclick=()=>{skin=+b.dataset.skin;document.querySelectorAll('[data-skin]').forEach(x=>x.classList.toggle('selected',+x.dataset.skin===skin));document.getElementById('skinInfo').textContent=skins[skin][1]+' · '+skins[skin][2]+' ₽'});document.getElementById('buySkin').onclick=()=>{let price=skins[skin][2];if(cash>=price){cash-=price;face=skins[skin][0];updateHud();say('Кайсар','Новый образ надет!');document.getElementById('modal').classList.remove('show')}else document.getElementById('skinInfo').textContent='Не хватает денег.'}},0);
+else if(which==='shop')modal('🛒 Магазин',`<p>В магазине можно покупать одежду и предметы.</p><p>Скоро появятся новые товары!</p>`);
+else if(which==='work')modal('💼 Работа',`<p>Подойди к зданию «РАБОТА» и нажми «ДЕЙСТВИЕ», чтобы получить зарплату.</p>`);
+else if(which==='family')modal('♡ Семья',`<p>Здесь будут семейные персонажи, общение и совместные занятия.</p>`);
+else if(which==='inventory')modal('🎒 Инвентарь',`<p>Пока пусто. Купленные образы сохраняются в игре.</p>`);
+else if(which==='map')modal('⌖ Карта города',`<p>Ты находишься в центре города LIVE FAMILY.</p>`);
+else say('Кайсар','Ты возле своего дома. Исследуй город и знакомься с жителями.',face);
 }
-addEventListener("resize",resize);
-resize();
-
-let player={
- x:150,y:0,w:27,h:49,
- vx:0,vy:0,speed:3.2,
- grounded:false,
- direction:1,
- color:"#45a6e8"
+document.querySelectorAll('.menuBtn').forEach(b=>b.onclick=()=>open(b.dataset.open));
+function move(dx,dy){px=Math.max(18,Math.min(innerWidth-18,px+dx));py=Math.max(70,Math.min(innerHeight-125,py+dy));}
+[['up',0,-12],['down',0,12],['left',-12,0],['right',12,0]].forEach(([id,dx,dy])=>{let b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();move(dx,dy)})});
+document.getElementById('act').onclick=()=>{
+let w=innerWidth,h=innerHeight;
+let closeNpc=npcs.find(n=>Math.hypot(n.x*w-px,n.y*h-py)<95);
+let closeBuilding=buildings.find(b=>Math.abs((b.x+b.w/2)*w-px)<b.w*w*.7&&Math.abs((b.y+b.h/2)*h-py)<b.h*h);
+if(closeNpc){say(closeNpc.name,closeNpc.line,closeNpc.emoji);if(closeNpc.name==='Вика')say('Вика','Привет, Кайсар! Загляни в раздел «Секреты» — там кое-что для тебя. ♡',closeNpc.emoji)}
+else if(closeBuilding?.kind==='work'){cash+=100;xp+=10;updateHud();say('Работа','Ты получил зарплату: 100 ₽. Отличная работа!','💼')}
+else if(closeBuilding?.kind==='shop')open('shop');
+else if(closeBuilding?.kind==='home')say('Дом','Это твой дом. Здесь можно будет отдыхать и обустраивать комнаты.','🏠');
+else say('Кайсар','Здесь пока нет взаимодействия. Подойди к жителю или зданию.',face)
 };
-
-let camera=0;
-let money=1000;
-let job=null;
-let nickname="Игрок";
-let started=false;
-let keys={left:false,right:false};
-let jumpPressed=false;
-let actionCooldown=0;
-
-const worldWidth=3600;
-const groundY=H-95;
-
-const buildings=[
- {x:350,w:180,h:150,name:"Дом №1",color:"#d88e63",type:"house"},
- {x:750,w:180,h:180,name:"Магазин",color:"#68a9c7",type:"shop"},
- {x:1200,w:200,h:155,name:"Центр работы",color:"#b58acb",type:"job"},
- {x:1800,w:190,h:165,name:"Дом №2",color:"#d6a75d",type:"house"},
- {x:2500,w:200,h:180,name:"Банк",color:"#83b88a",type:"bank"},
- {x:3100,w:190,h:155,name:"Дом №3",color:"#ce8292",type:"house"}
-];
-
-const trees=[200,570,1030,1500,2150,2800,3400];
-
-let platforms=[
- {x:0,y:groundY,w:worldWidth,h:500}
-];
-
-function rect(x,y,w,h,color){
- ctx.fillStyle=color;
- ctx.fillRect(Math.round(x),Math.round(y),w,h);
-}
-
-function drawSky(){
- let g=ctx.createLinearGradient(0,0,0,H);
- g.addColorStop(0,"#70b9e8");
- g.addColorStop(1,"#d2edff");
- ctx.fillStyle=g;
- ctx.fillRect(0,0,W,H);
-
- // Облака
- for(let i=0;i<9;i++){
-  let x=(i*440-camera*.3)%(W+300);
-  if(x< -200)x+=W+300;
-  rect(x,90+(i%3)*45,65,20,"#ffffff");
-  rect(x+15,75+(i%3)*45,55,20,"#ffffff");
-  rect(x+35,90+(i%3)*45,55,20,"#ffffff");
- }
-}
-
-function drawTree(x){
- let sx=x-camera;
- rect(sx+17,groundY-65,15,65,"#80502e");
- rect(sx-5,groundY-105,60,45,"#278c49");
- rect(sx+5,groundY-130,45,40,"#38a653");
- rect(sx+15,groundY-145,25,25,"#4dbb63");
-}
-
-function drawBuilding(b){
- let x=b.x-camera;
- let y=groundY-b.h;
-
- // Здание
- rect(x,y,b.w,b.h,b.color);
- rect(x-5,y-10,b.w+10,15,"#554a50");
-
- // Окна
- for(let i=0;i<3;i++){
-  rect(x+20+i*52,y+35,32,35,"#a9e5f7");
-  rect(x+34+i*52,y+35,4,35,"#e9f5ff");
- }
- // Дверь
- rect(x+b.w/2-19,groundY-58,38,58,"#68432f");
- rect(x+b.w/2+10,groundY-30,5,5,"#f7d45b");
-
- // Вывеска
- ctx.fillStyle="#172333";
- ctx.font="bold 15px Arial";
- ctx.textAlign="center";
- ctx.fillText(b.name,x+b.w/2,y-18);
-}
-
-function drawGround(){
- rect(0,groundY,W,H-groundY,"#69a94c");
- rect(0,groundY,W,8,"#a4d66a");
-
- // Текстура травы
- for(let i=0;i<100;i++){
-  let x=(i*97-camera*.8)%(W+50);
-  if(x<0)x+=W+50;
-  rect(x,groundY+15+(i%5)*9,4,7,"#4f913d");
- }
- rect(0,groundY+60,W,8,"#b88b59");
- rect(0,groundY+68,W,H-groundY-68,"#c6a16e");
-}
-
-function drawPlayer(){
- let x=player.x-camera;
- let y=player.y;
-
- // Ноги
- rect(x+4,y+34,8,15,"#263b68");
- rect(x+16,y+34,8,15,"#263b68");
-
- // Тело
- rect(x+3,y+17,22,22,player.color);
- rect(x+5,y+12,18,24,player.color);
-
- // Голова
- rect(x+4,y,20,19,"#f0bd91");
- rect(x+2,y-3,23,8,"#513b30");
-
- // Глаза
- rect(x+7,y+7,3,3,"#202020");
- rect(x+18,y+7,3,3,"#202020");
-
- // Руки
- rect(x-2,y+20,6,17,"#f0bd91");
- rect(x+23,y+20,6,17,"#f0bd91");
-}
-
-function drawWorld(){
- drawSky();
- drawGround();
-
- trees.forEach(drawTree);
- buildings.forEach(drawBuilding);
-
- // Указатель над персонажем
- ctx.fillStyle="#ffffff";
- ctx.font="12px Arial";
- ctx.textAlign="center";
- ctx.fillText(nickname,player.x-camera+14,player.y-13);
-
- drawPlayer();
-}
-
-function nearBuilding(){
- let center=player.x+player.w/2;
- return buildings.find(b=>
-  Math.abs(center-(b.x+b.w/2))<b.w/2+55
- );
-}
-
-function showHint(text){
- hint.textContent=text;
- hint.style.display="block";
-}
-
-function hideHint(){
- hint.style.display="none";
-}
-
-function interact(){
- let b=nearBuilding();
- if(!b){showHint("Подойди к зданию");return;}
-
- if(b.type==="house"){
-  showHint("🏠 "+b.name+" — дом пока закрыт");
- }
- if(b.type==="shop"){
-  showHint("🛒 Магазин: товары скоро появятся");
- }
- if(b.type==="job"){
-  if(!job){
-   job="Курьер";
-   document.getElementById("job").textContent=job;
-   showHint("💼 Ты устроился курьером! Выполняй задания.");
-  }else{
-   showHint("Ты уже работаешь: "+job);
-  }
- }
- if(b.type==="bank"){
-  showHint("🏦 Банк: твой баланс "+money+" ₽");
- }
-}
-
-function earn(){
- if(!job){
-  showHint("Сначала устройся на работу!");
-  return;
- }
- money+=100;
- document.getElementById("money").textContent=money;
- showHint("📦 Задание выполнено! +100 ₽");
-}
-
-function update(){
- if(!started)return;
-
- const acceleration=.65;
- const friction=.78;
-
- if(keys.left){
-  player.vx-=acceleration;
-  player.direction=-1;
- }
- if(keys.right){
-  player.vx+=acceleration;
-  player.direction=1;
- }
-
- player.vx*=friction;
- player.vx=Math.max(-player.speed,Math.min(player.speed,player.vx));
-
- player.x+=player.vx;
-
- // Границы мира
- player.x=Math.max(0,Math.min(worldWidth-player.w,player.x));
-
- // Гравитация
- player.vy+=.65;
- player.y+=player.vy;
-
- if(player.y+player.h>=groundY){
-  player.y=groundY-player.h;
-  player.vy=0;
-  player.grounded=true;
- }else{
-  player.grounded=false;
- }
-
- if(jumpPressed&&player.grounded){
-  player.vy=-11;
-  player.grounded=false;
- }
- jumpPressed=false;
-
- // Камера
- camera=player.x-W*.42;
- camera=Math.max(0,Math.min(worldWidth-W,camera));
-
- if(actionCooldown>0)actionCooldown--;
-}
-
-function loop(){
- update();
- ctx.clearRect(0,0,W,H);
- drawWorld();
- requestAnimationFrame(loop);
-}
-
-function bindButton(id,key){
- const el=document.getElementById(id);
- el.addEventListener("pointerdown",e=>{
-  e.preventDefault();
-  keys[key]=true;
- });
- ["pointerup","pointerleave","pointercancel"].forEach(ev=>{
-  el.addEventListener(ev,()=>keys[key]=false);
- });
-}
-
-bindButton("left","left");
-bindButton("right","right");
-
-document.getElementById("jump").addEventListener("pointerdown",e=>{
- e.preventDefault();
- jumpPressed=true;
-});
-
-document.getElementById("action").addEventListener("click",()=>{
- interact();
-});
-
-addEventListener("keydown",e=>{
- if(e.key==="ArrowLeft"||e.key==="a")keys.left=true;
- if(e.key==="ArrowRight"||e.key==="d")keys.right=true;
- if(e.key===" "||e.key==="ArrowUp")jumpPressed=true;
- if(e.key==="e"||e.key==="Enter")interact();
-});
-
-addEventListener("keyup",e=>{
- if(e.key==="ArrowLeft"||e.key==="a")keys.left=false;
- if(e.key==="ArrowRight"||e.key==="d")keys.right=false;
-});
-
-document.getElementById("start").onclick=()=>{
- nickname=document.getElementById("name").value.trim()||"Игрок";
- document.getElementById("nickname").textContent=nickname;
- document.getElementById("menu").style.display="none";
- player.y=groundY-player.h;
- started=true;
-};
-
-loop();
+updateHud();
+})();
 </script>
-</body>
-</html>
+</body></html>
