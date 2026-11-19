@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ru">
 <head>
@@ -5,41 +6,209 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>LIVE FAMILY</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#171326;color:white;font-family:Arial,sans-serif;overflow:hidden}
-#game{display:block;width:100vw;height:100dvh;touch-action:none}
-#controls{position:fixed;bottom:18px;left:18px;display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:48px 48px;gap:5px}
-button{border:1px solid #a88aff;background:#35265e;color:white;border-radius:13px;font-size:18px;box-shadow:0 3px 10px #0006}
-#up{grid-column:2}#left{grid-column:1;grid-row:2}#down{grid-column:2;grid-row:2}#right{grid-column:3;grid-row:2}
-#actions{position:fixed;right:14px;bottom:22px;display:flex;flex-direction:column;gap:9px}
-#actions button{padding:12px 15px;font-size:14px}
-#toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#251c42;padding:10px 16px;border-radius:12px;display:none}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#171326;font-family:Arial;color:#fff}
+canvas{display:block;width:100vw;height:100dvh;touch-action:none}
+.panel{position:fixed;background:rgba(35,25,66,.96);border:1px solid #9d7bff;border-radius:16px;box-shadow:0 5px 18px #0007}
+#hud{top:10px;left:10px;padding:10px 13px;font-weight:bold;font-size:14px}
+#move{position:fixed;left:18px;bottom:16px;display:grid;grid-template-columns:54px 54px 54px;grid-template-rows:54px 54px;gap:5px}
+button{color:#fff;background:#382568;border:1px solid #a98cff;border-radius:14px;font-size:16px;min-height:46px;box-shadow:0 3px 10px #0006}
+#up{grid-column:2}
+#left{grid-column:1;grid-row:2}
+#down{grid-column:2;grid-row:2}
+#right{grid-column:3;grid-row:2}
+#rightPanel{right:12px;bottom:16px;display:flex;flex-direction:column;gap:8px;width:132px}
+#rightPanel button{padding:11px 6px}
+#actions{right:12px;bottom:226px;width:158px;padding:9px;display:none;grid-template-columns:1fr 1fr;gap:6px;max-height:48vh;overflow:auto}
+#actions button{font-size:12px;min-height:40px;padding:6px 2px}
+#toast{top:75px;left:50%;transform:translateX(-50%);padding:10px 15px;display:none;white-space:nowrap}
+#close{grid-column:span 2;background:#6d4caa}
+@media(min-width:700px){
+#move{left:28px;bottom:25px}
+#rightPanel{right:24px;bottom:25px}
+}
 </style>
 </head>
 <body>
+
 <canvas id="game"></canvas>
-<div id="toast"></div>
-<div id="controls">
-<button id="up">▲</button><button id="left">◀</button><button id="down">▼</button><button id="right">▶</button>
+
+<div id="hud" class="panel">
+LIVE FAMILY<br>
+<span id="stats">День 1 · $500</span>
 </div>
-<div id="actions">
-<button id="interact">Действие</button>
-<button id="menu">Меню</button>
+
+<div id="toast" class="panel"></div>
+
+<div id="move">
+<button id="up">▲</button>
+<button id="left">◀</button>
+<button id="down">▼</button>
+<button id="right">▶</button>
 </div>
+
+<div id="rightPanel">
+<button id="actionToggle">Действия</button>
+<button id="menuBtn">Меню</button>
+</div>
+
+<div id="actions" class="panel">
+<button data-act="talk">Говорить</button>
+<button data-act="hello">Привет</button>
+<button data-act="sit">Сесть</button>
+<button data-act="rest">Отдых</button>
+<button data-act="eat">Поесть</button>
+<button data-act="work">Работа</button>
+<button data-act="shop">Магазин</button>
+<button data-act="home">Домой</button>
+<button data-act="dance">Танец</button>
+<button data-act="phone">Телефон</button>
+<button data-act="pet">Питомец</button>
+<button data-act="sleep">Спать</button>
+<button id="close">Закрыть</button>
+</div>
+
 <script src="graphics.js"></script>
+
 <script>
-(() => {
- const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
- const game={player:{x:300,y:350},day:1,money:500};
- function resize(){const d=Math.min(devicePixelRatio||1,2);canvas.width=innerWidth*d;canvas.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0);canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';}
- function draw(){const scaleX=innerWidth/560,scaleY=innerHeight/560;ctx.save();ctx.scale(scaleX,scaleY);LIVE_FAMILY_GRAPHICS.draw(ctx,game);ctx.restore();requestAnimationFrame(draw)}
- resize();addEventListener('resize',resize);draw();
- function move(dx,dy){game.player.x=Math.max(18,Math.min(542,game.player.x+dx));game.player.y=Math.max(35,Math.min(525,game.player.y+dy));}
- const keys={up:[0,-9],down:[0,9],left:[-9,0],right:[9,0]};
- Object.entries(keys).forEach(([id,v])=>{const b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();move(...v)});});
- addEventListener('keydown',e=>{const m={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};if(m[e.key])move(...keys[m[e.key]]);});
- const toast=t=>{const el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',1800)};
- document.getElementById('interact').onclick=()=>toast('Ты гуляешь по городу. Исследуй дома и улицы!');
- document.getElementById('menu').onclick=()=>toast('LIVE FAMILY • День '+game.day+' • Деньги: $'+game.money);
+(()=>{
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+
+const game={
+ player:{x:280,y:330},
+ day:1,
+ money:500,
+ energy:100,
+ food:3,
+ anim:'idle'
+};
+
+function resize(){
+ let d=Math.min(devicePixelRatio||1,2);
+ canvas.width=innerWidth*d;
+ canvas.height=innerHeight*d;
+ ctx.setTransform(d,0,0,d,0,0);
+}
+
+function render(){
+ ctx.clearRect(0,0,innerWidth,innerHeight);
+ LIVE_FAMILY_GRAPHICS.draw(ctx,game,innerWidth,innerHeight);
+ requestAnimationFrame(render);
+}
+
+resize();
+addEventListener('resize',resize);
+render();
+
+function move(dx,dy){
+ game.player.x=Math.max(18,Math.min(innerWidth-18,game.player.x+dx));
+ game.player.y=Math.max(90,Math.min(innerHeight-20,game.player.y+dy));
+ game.anim='walk';
+ setTimeout(()=>game.anim='idle',180);
+}
+
+const dirs={
+ up:[0,-18],
+ down:[0,18],
+ left:[-18,0],
+ right:[18,0]
+};
+
+Object.entries(dirs).forEach(([id,v])=>{
+ let b=document.getElementById(id);
+ b.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  move(...v);
+ });
+});
+
+addEventListener('keydown',e=>{
+ let k={
+  ArrowUp:'up',w:'up',
+  ArrowDown:'down',s:'down',
+  ArrowLeft:'left',a:'left',
+  ArrowRight:'right',d:'right'
+ }[e.key];
+
+ if(k)move(...dirs[k]);
+});
+
+const toast=t=>{
+ let el=document.getElementById('toast');
+ el.textContent=t;
+ el.style.display='block';
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>{
+  el.style.display='none';
+ },1700);
+};
+
+const actions=document.getElementById('actions');
+
+document.getElementById('actionToggle').onclick=()=>{
+ actions.style.display=
+ actions.style.display==='grid'?'none':'grid';
+};
+
+document.getElementById('close').onclick=()=>{
+ actions.style.display='none';
+};
+
+document.getElementById('menuBtn').onclick=()=>{
+ toast('День '+game.day+' · $'+game.money+' · Энергия '+game.energy);
+};
+
+const messages={
+ talk:'Ты начал разговор с жителем.',
+ hello:'Ты поздоровался с жителем.',
+ sit:'Персонаж присел отдохнуть.',
+ rest:'Ты отдохнул. Энергия восстановлена.',
+ eat:'Ты перекусил.',
+ work:'Рабочая смена завершена. +$100.',
+ shop:'Ты зашёл в магазин.',
+ home:'Ты вернулся домой.',
+ dance:'Персонаж танцует!',
+ phone:'Ты проверил телефон.',
+ pet:'Питомец рад вниманию.',
+ sleep:'Ты поспал. Начался новый день.'
+};
+
+document.querySelectorAll('[data-act]').forEach(b=>{
+ b.onclick=()=>{
+  let a=b.dataset.act;
+
+  if(a==='work')game.money+=100;
+
+  if(a==='rest')
+   game.energy=Math.min(100,game.energy+25);
+
+  if(a==='eat'){
+   if(game.food>0){
+    game.food--;
+    game.energy=Math.min(100,game.energy+15);
+   }else{
+    toast('Нет еды');
+    return;
+   }
+  }
+
+  if(a==='sleep'){
+   game.day++;
+   game.energy=100;
+  }
+
+  game.anim=a;
+  toast(messages[a]);
+
+  document.getElementById('stats').textContent=
+  'День '+game.day+' · $'+game.money;
+
+  actions.style.display='none';
+ };
+});
 })();
 </script>
-</body></html>
+
+</body>
+</html>
