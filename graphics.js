@@ -1,69 +1,170 @@
-// LIVE FAMILY — графическая система (graphics.js)
-(function () {
-  const G = {
-    draw(ctx, game) {
-      const w = ctx.canvas.width, h = ctx.canvas.height;
-      ctx.clearRect(0, 0, w, h);
-      // Небо и земля
-      ctx.fillStyle = "#a9c7a0"; ctx.fillRect(0, 0, w, h);
-      // кварталы и тротуары
-      ctx.fillStyle = "#d7d0c8";
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#424653";
-      ctx.fillRect(0, 205, w, 185);
-      ctx.fillRect(265, 0, 155, h);
-      // разметка дорог
-      ctx.strokeStyle = "#f7e7a3"; ctx.lineWidth = 4; ctx.setLineDash([22, 18]);
-      ctx.beginPath(); ctx.moveTo(0, 297); ctx.lineTo(w, 297); ctx.moveTo(342, 0); ctx.lineTo(342, h); ctx.stroke();
-      ctx.setLineDash([]);
-      // газоны
-      this.tree(ctx, 45, 70); this.tree(ctx, 510, 75); this.tree(ctx, 65, 440); this.tree(ctx, 520, 440);
-      this.house(ctx, 90, 45, "#e9b77c", "#9b4e57", "ДОМ");
-      this.house(ctx, 430, 48, "#d8d9e8", "#625b9b", "МАГАЗИН");
-      this.house(ctx, 70, 405, "#e8d4aa", "#a45d42", "КАФЕ");
-      this.car(ctx, 170, 245, "#e34f68");
-      this.car(ctx, 445, 320, "#4d9bd7");
-      this.person(ctx, game.player.x, game.player.y, "#6c55b8", true);
-      this.person(ctx, 215, 160, "#e08b4d", false);
-      this.person(ctx, 475, 165, "#4b9a79", false);
-      this.hud(ctx, game);
-    },
-    house(c,x,y,wall,roof,label) {
-      c.fillStyle="rgba(0,0,0,.18)"; c.fillRect(x+7,y+9,112,94);
-      c.fillStyle=wall; c.fillRect(x,y+20,112,78);
-      c.fillStyle=roof; c.beginPath(); c.moveTo(x-9,y+24); c.lineTo(x+56,y-12); c.lineTo(x+121,y+24); c.closePath(); c.fill();
-      c.fillStyle="#704b3d"; c.fillRect(x+43,y+55,25,43);
-      c.fillStyle="#aee0ed"; c.fillRect(x+12,y+42,23,20); c.fillRect(x+78,y+42,22,20);
-      c.fillStyle="#fff"; c.font="bold 10px Arial"; c.textAlign="center"; c.fillText(label,x+56,y+14);
-    },
-    tree(c,x,y) {
-      c.fillStyle="#76513a"; c.fillRect(x-4,y+12,8,24);
-      c.fillStyle="#3f8d55"; c.beginPath(); c.arc(x,y,19,0,Math.PI*2); c.fill();
-      c.fillStyle="#64ad68"; c.beginPath(); c.arc(x-8,y-7,10,0,Math.PI*2); c.fill();
-    },
-    car(c,x,y,color) {
-      c.fillStyle="rgba(0,0,0,.25)"; c.fillRect(x+3,y+5,62,29);
-      c.fillStyle=color; c.fillRoundRect ? c.fillRoundRect(x,y,62,27,7) : c.fillRect(x,y,62,27);
-      c.fillStyle="#bde7f2"; c.fillRect(x+13,y+4,17,10); c.fillRect(x+34,y+4,15,10);
-      c.fillStyle="#222"; c.beginPath(); c.arc(x+13,y+27,6,0,7); c.arc(x+49,y+27,6,0,7); c.fill();
-    },
-    person(c,x,y,color,player) {
-      c.fillStyle="rgba(0,0,0,.2)"; c.beginPath(); c.ellipse(x,y+14,11,5,0,0,7); c.fill();
-      c.fillStyle="#303044"; c.fillRect(x-7,y+5,5,13); c.fillRect(x+2,y+5,5,13);
-      c.fillStyle=color; c.fillRect(x-10,y-9,20,17);
-      c.fillStyle="#f1c39c"; c.beginPath(); c.arc(x,y-16,8,0,7); c.fill();
-      c.fillStyle="#51382f"; c.fillRect(x-8,y-23,16,5);
-      if(player){c.strokeStyle="#fff";c.lineWidth=2;c.strokeRect(x-12,y-27,24,48);}
-    },
-    hud(c,g) {
-      c.fillStyle="rgba(31,24,57,.92)"; c.fillRect(10,10,205,49);
-      c.fillStyle="#fff"; c.font="bold 15px Arial"; c.textAlign="left";
-      c.fillText("LIVE FAMILY",20,30);
-      c.font="12px Arial"; c.fillStyle="#d8c8ff";
-      c.fillText("День "+g.day+"  •  $"+g.money,20,48);
-      c.fillStyle="rgba(31,24,57,.9)"; c.fillRect(c.canvas.width-116,10,106,36);
-      c.fillStyle="#fff"; c.textAlign="center"; c.font="12px Arial"; c.fillText("КАРТА  •  МЕНЮ",c.canvas.width-63,33);
-    }
-  };
-  window.LIVE_FAMILY_GRAPHICS = G;
+
+// LIVE FAMILY graphics.js
+(function(){
+
+const G={
+
+draw(c,g,w,h){
+
+const sx=w/560;
+const sy=h/900;
+
+c.save();
+c.scale(sx,sy);
+
+const W=560,H=900;
+
+// Земля
+c.fillStyle='#d9d2ca';
+c.fillRect(0,0,W,H);
+
+// Дороги
+c.fillStyle='#414653';
+c.fillRect(265,0,150,H);
+c.fillRect(0,345,W,300);
+
+// Разметка
+c.strokeStyle='#f7e6a0';
+c.lineWidth=4;
+c.setLineDash([24,22]);
+
+c.beginPath();
+c.moveTo(340,0);
+c.lineTo(340,H);
+c.moveTo(0,495);
+c.lineTo(W,495);
+c.stroke();
+
+c.setLineDash([]);
+
+// Деревья
+this.tree(c,42,160);
+this.tree(c,515,160);
+this.tree(c,48,765);
+this.tree(c,514,770);
+
+// Здания
+this.building(c,82,100,'#e9b87d','#9d4d58','ДОМ');
+this.building(c,430,115,'#d9dced','#625a9b','МАГАЗИН');
+this.building(c,78,700,'#e7d5aa','#a45d45','КАФЕ');
+this.building(c,430,700,'#d5c8e8','#765ca5','ДОМ');
+
+// Машины
+this.car(c,165,395,'#e64d70');
+this.car(c,445,560,'#4a9bd5');
+
+// Жители
+this.person(c,210,300,'#df8849',false);
+this.person(c,470,300,'#4c9c7d',false);
+
+// Игрок
+this.person(
+ c,
+ g.player.x*560/w,
+ g.player.y*900/h,
+ '#7556c8',
+ true,
+ g.anim
+);
+
+c.restore();
+},
+
+building(c,x,y,wall,roof,label){
+
+c.fillStyle='rgba(0,0,0,.17)';
+c.fillRect(x+8,y+25,118,150);
+
+c.fillStyle=wall;
+c.fillRect(x,y+35,112,130);
+
+c.fillStyle=roof;
+c.beginPath();
+c.moveTo(x-12,y+40);
+c.lineTo(x+56,y-10);
+c.lineTo(x+124,y+40);
+c.closePath();
+c.fill();
+
+c.fillStyle='#a9e0ec';
+c.fillRect(x+13,y+72,25,38);
+c.fillRect(x+75,y+72,25,38);
+
+c.fillStyle='#704a3c';
+c.fillRect(x+44,y+110,25,55);
+
+c.fillStyle='#fff';
+c.font='bold 12px Arial';
+c.textAlign='center';
+c.fillText(label,x+56,y+30);
+},
+
+tree(c,x,y){
+
+c.fillStyle='#76513a';
+c.fillRect(x-4,y+14,8,30);
+
+c.fillStyle='#348b55';
+c.beginPath();
+c.ellipse(x,y,19,29,0,0,7);
+c.fill();
+
+c.fillStyle='#65b56d';
+c.beginPath();
+c.ellipse(x-7,y-8,8,13,0,0,7);
+c.fill();
+},
+
+car(c,x,y,col){
+
+c.fillStyle='#222';
+c.beginPath();
+c.ellipse(x+8,y+30,7,10,0,0,7);
+c.ellipse(x+51,y+30,7,10,0,0,7);
+c.fill();
+
+c.fillStyle=col;
+c.beginPath();
+c.roundRect(x,y,62,29,5);
+c.fill();
+
+c.fillStyle='#b9e8f3';
+c.fillRect(x+11,y+5,17,12);
+c.fillRect(x+34,y+5,17,12);
+},
+
+person(c,x,y,col,active,anim){
+
+c.fillStyle='rgba(0,0,0,.2)';
+c.beginPath();
+c.ellipse(x,y+16,12,5,0,0,7);
+c.fill();
+
+c.fillStyle='#303044';
+c.fillRect(x-7,y+5,5,15);
+c.fillRect(x+2,y+5,5,15);
+
+c.fillStyle=col;
+c.fillRect(x-10,y-12,20,20);
+
+c.fillStyle='#f0c39d';
+c.beginPath();
+c.arc(x,y-20,9,0,7);
+c.fill();
+
+c.fillStyle='#50392e';
+c.fillRect(x-8,y-28,16,6);
+
+if(active){
+ c.strokeStyle='#fff';
+ c.lineWidth=2;
+ c.strokeRect(x-14,y-34,28,57);
+}
+
+}
+
+};
+
+window.LIVE_FAMILY_GRAPHICS=G;
+
 })();
