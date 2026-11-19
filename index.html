@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>LIVE FAMILY</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#171326;color:white;font-family:Arial,sans-serif;overflow:hidden}
+#game{display:block;width:100vw;height:100dvh;touch-action:none}
+#controls{position:fixed;bottom:18px;left:18px;display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:48px 48px;gap:5px}
+button{border:1px solid #a88aff;background:#35265e;color:white;border-radius:13px;font-size:18px;box-shadow:0 3px 10px #0006}
+#up{grid-column:2}#left{grid-column:1;grid-row:2}#down{grid-column:2;grid-row:2}#right{grid-column:3;grid-row:2}
+#actions{position:fixed;right:14px;bottom:22px;display:flex;flex-direction:column;gap:9px}
+#actions button{padding:12px 15px;font-size:14px}
+#toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#251c42;padding:10px 16px;border-radius:12px;display:none}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="toast"></div>
+<div id="controls">
+<button id="up">▲</button><button id="left">◀</button><button id="down">▼</button><button id="right">▶</button>
+</div>
+<div id="actions">
+<button id="interact">Действие</button>
+<button id="menu">Меню</button>
+</div>
+<script src="graphics.js"></script>
+<script>
+(() => {
+ const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+ const game={player:{x:300,y:350},day:1,money:500};
+ function resize(){const d=Math.min(devicePixelRatio||1,2);canvas.width=innerWidth*d;canvas.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0);canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';}
+ function draw(){const scaleX=innerWidth/560,scaleY=innerHeight/560;ctx.save();ctx.scale(scaleX,scaleY);LIVE_FAMILY_GRAPHICS.draw(ctx,game);ctx.restore();requestAnimationFrame(draw)}
+ resize();addEventListener('resize',resize);draw();
+ function move(dx,dy){game.player.x=Math.max(18,Math.min(542,game.player.x+dx));game.player.y=Math.max(35,Math.min(525,game.player.y+dy));}
+ const keys={up:[0,-9],down:[0,9],left:[-9,0],right:[9,0]};
+ Object.entries(keys).forEach(([id,v])=>{const b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();move(...v)});});
+ addEventListener('keydown',e=>{const m={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};if(m[e.key])move(...keys[m[e.key]]);});
+ const toast=t=>{const el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',1800)};
+ document.getElementById('interact').onclick=()=>toast('Ты гуляешь по городу. Исследуй дома и улицы!');
+ document.getElementById('menu').onclick=()=>toast('LIVE FAMILY • День '+game.day+' • Деньги: $'+game.money);
+})();
+</script>
+</body></html>
