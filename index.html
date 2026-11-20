@@ -1,214 +1,361 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>LIVE FAMILY</title>
+<title>LIVE FAMILY 2D</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#171326;font-family:Arial;color:#fff}
-canvas{display:block;width:100vw;height:100dvh;touch-action:none}
-.panel{position:fixed;background:rgba(35,25,66,.96);border:1px solid #9d7bff;border-radius:16px;box-shadow:0 5px 18px #0007}
-#hud{top:10px;left:10px;padding:10px 13px;font-weight:bold;font-size:14px}
-#move{position:fixed;left:18px;bottom:16px;display:grid;grid-template-columns:54px 54px 54px;grid-template-rows:54px 54px;gap:5px}
-button{color:#fff;background:#382568;border:1px solid #a98cff;border-radius:14px;font-size:16px;min-height:46px;box-shadow:0 3px 10px #0006}
-#up{grid-column:2}
-#left{grid-column:1;grid-row:2}
-#down{grid-column:2;grid-row:2}
-#right{grid-column:3;grid-row:2}
-#rightPanel{right:12px;bottom:16px;display:flex;flex-direction:column;gap:8px;width:132px}
-#rightPanel button{padding:11px 6px}
-#actions{right:12px;bottom:226px;width:158px;padding:9px;display:none;grid-template-columns:1fr 1fr;gap:6px;max-height:48vh;overflow:auto}
-#actions button{font-size:12px;min-height:40px;padding:6px 2px}
-#toast{top:75px;left:50%;transform:translateX(-50%);padding:10px 15px;display:none;white-space:nowrap}
-#close{grid-column:span 2;background:#6d4caa}
-@media(min-width:700px){
-#move{left:28px;bottom:25px}
-#rightPanel{right:24px;bottom:25px}
-}
+body{margin:0;background:#101827;color:white;font-family:Arial,sans-serif;overflow:hidden}
+button{border:0;border-radius:9px;padding:11px;background:#263b57;color:white;font-weight:bold}
+button:active{transform:scale(.96);background:#41648e}
+#game{display:block;width:100vw;height:57vh;background:#78a96a;image-rendering:pixelated;touch-action:none}
+#top{height:44px;background:#17263b;display:flex;align-items:center;justify-content:space-around;font-size:12px}
+#bottom{height:43vh;overflow:auto;background:#111d2e;padding:10px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.stat{background:#23354d;border-radius:8px;padding:7px;text-align:center;font-size:11px}
+.bar{height:5px;background:#45566d;border-radius:5px;margin-top:5px;overflow:hidden}
+.fill{height:100%;background:#54d68b;width:80%}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.actions button{font-size:12px;min-height:43px}
+#log{background:#1c2c42;border-radius:8px;margin-top:10px;padding:9px;font-size:12px;min-height:40px}
+#move{position:absolute;top:44vh;left:10px;display:grid;grid-template-columns:42px 42px 42px;gap:3px}
+#move button{height:40px;background:#172b46dd}
+#modal{position:fixed;inset:0;background:#07101aee;display:flex;align-items:center;justify-content:center;z-index:5;padding:20px}
+#modalbox{width:100%;max-width:370px;background:#1b2d45;padding:20px;border-radius:15px}
+input,select{width:100%;padding:12px;margin:8px 0;background:#0e1a2b;color:white;border:1px solid #49617e;border-radius:8px}
+.hidden{display:none!important}
+h2{margin-top:0}
+.small{font-size:11px;color:#a9bfd7}
 </style>
 </head>
 <body>
 
+<div id="top">
+ <b>🏡 LIVE FAMILY</b>
+ <span id="money">💰 10000 ₸</span>
+ <span id="clock">08:00</span>
+ <button onclick="saveGame()">💾</button>
+</div>
+
 <canvas id="game"></canvas>
 
-<div id="hud" class="panel">
-LIVE FAMILY<br>
-<span id="stats">День 1 · $500</span>
-</div>
-
-<div id="toast" class="panel"></div>
-
 <div id="move">
-<button id="up">▲</button>
-<button id="left">◀</button>
-<button id="down">▼</button>
-<button id="right">▶</button>
+ <span></span><button onclick="move(0,-1)">▲</button><span></span>
+ <button onclick="move(-1,0)">◀</button>
+ <button onclick="move(0,1)">▼</button>
+ <button onclick="move(1,0)">▶</button>
 </div>
 
-<div id="rightPanel">
-<button id="actionToggle">Действия</button>
-<button id="menuBtn">Меню</button>
+<div id="bottom">
+ <div class="stats">
+  <div class="stat">🍔 Голод<div class="bar"><div id="hunger" class="fill"></div></div></div>
+  <div class="stat">💧 Жажда<div class="bar"><div id="thirst" class="fill"></div></div></div>
+  <div class="stat">⚡ Энергия<div class="bar"><div id="energy" class="fill"></div></div></div>
+  <div class="stat">❤️ Настроение<div class="bar"><div id="mood" class="fill"></div></div></div>
+ </div>
+
+ <div class="actions">
+  <button onclick="interact()">👋 Взаимодействие</button>
+  <button onclick="eat()">🍕 Поесть</button>
+  <button onclick="drink()">🥤 Вода</button>
+  <button onclick="sleep()">🛏 Спать</button>
+  <button onclick="work()">💼 Работа</button>
+  <button onclick="shop()">🛒 Магазин</button>
+  <button onclick="buyHouse()">🏠 Дом</button>
+  <button onclick="buyCar()">🚗 Машина</button>
+  <button onclick="drive()">🚘 Ехать</button>
+  <button onclick="romance()">❤️ Ухаживать</button>
+  <button onclick="family()">👨‍👩‍👧 Семья</button>
+  <button onclick="doctor()">🏥 Врач</button>
+  <button onclick="pregnancy()">🤰 Беременность</button>
+  <button onclick="babyCare()">👶 Ребёнок</button>
+  <button onclick="saveGame()">💾 Сохранить</button>
+  <button onclick="loadGame()">📂 Загрузить</button>
+  <button onclick="resetGame()">🔄 Новая игра</button>
+ </div>
+ <div id="log">Добро пожаловать в LIVE FAMILY! Исследуй город.</div>
+ <p class="small">Управление: кнопки на экране или стрелки клавиатуры. Подойди к зданиям и персонажам, чтобы взаимодействовать.</p>
 </div>
 
-<div id="actions" class="panel">
-<button data-act="talk">Говорить</button>
-<button data-act="hello">Привет</button>
-<button data-act="sit">Сесть</button>
-<button data-act="rest">Отдых</button>
-<button data-act="eat">Поесть</button>
-<button data-act="work">Работа</button>
-<button data-act="shop">Магазин</button>
-<button data-act="home">Домой</button>
-<button data-act="dance">Танец</button>
-<button data-act="phone">Телефон</button>
-<button data-act="pet">Питомец</button>
-<button data-act="sleep">Спать</button>
-<button id="close">Закрыть</button>
+<div id="modal">
+ <div id="modalbox">
+  <h2>🏡 LIVE FAMILY 2D</h2>
+  <p>Создай своего персонажа</p>
+  <input id="playerName" placeholder="Имя персонажа" value="Алекс">
+  <select id="gender">
+   <option value="Мужчина">Мужчина</option>
+   <option value="Женщина">Женщина</option>
+  </select>
+  <button style="width:100%" onclick="startGame()">Начать игру</button>
+  <p class="small">Pixel Art • Симулятор жизни</p>
+ </div>
 </div>
-
-<script src="graphics.js"></script>
 
 <script>
-(()=>{
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const W=640,H=400,T=32;
+canvas.width=W;canvas.height=H;
 
-const game={
- player:{x:280,y:330},
- day:1,
- money:500,
- energy:100,
- food:3,
- anim:'idle'
-};
+let player={x:10,y:9,name:"Алекс",gender:"Мужчина"};
+let partner={x:14,y:8,name:"Мария",relationship:10};
+let money=10000,car=false,house=false;
+let hunger=90,thirst=90,energy=90,mood=90;
+let pregnant=false,month=0,baby=false,babyName="Малыш";
+let inventory=0,day=1,hour=8,minute=0;
+let started=false,driving=false;
+let map=[];
+let buildings=[
+ {x:3,y:3,w:3,h:2,name:"МАГАЗИН",color:"#e7a73b"},
+ {x:16,y:3,w:4,h:3,name:"БОЛЬНИЦА",color:"#e8e8e8"},
+ {x:4,y:13,w:4,h:3,name:"ДОМ",color:"#b76e48"},
+ {x:16,y:13,w:4,h:3,name:"РАБОТА",color:"#6389bd"},
+ {x:9,y:3,w:3,h:2,name:"АВТОСАЛОН",color:"#a5b5c9"}
+];
 
-function resize(){
- let d=Math.min(devicePixelRatio||1,2);
- canvas.width=innerWidth*d;
- canvas.height=innerHeight*d;
- ctx.setTransform(d,0,0,d,0,0);
+function log(s){document.getElementById("log").textContent=s}
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function makeMap(){
+ map=[];
+ for(let y=0;y<13;y++){
+  map[y]=[];
+  for(let x=0;x<20;x++){
+   map[y][x]=0;
+   if(x===0||y===0||x===19||y===12)map[y][x]=2;
+   if((x===8||x===9)&&y>0&&y<12)map[y][x]=1;
+   if(y===7&&x>0&&x<19)map[y][x]=1;
+  }
+ }
 }
+makeMap();
 
+function rect(x,y,w,h,c){
+ ctx.fillStyle=c;ctx.fillRect(x,y,w,h);
+}
+function text(s,x,y,c="#fff"){
+ ctx.fillStyle=c;ctx.font="bold 10px Arial";ctx.fillText(s,x,y);
+}
+function drawPerson(x,y,color,name){
+ let px=x*T,py=y*T;
+ rect(px+9,py+2,14,13,"#e9b58b");
+ rect(px+7,py+14,18,14,color);
+ rect(px+7,py+28,7,4,"#343b55");
+ rect(px+18,py+28,7,4,"#343b55");
+ rect(px+11,py+7,3,3,"#17202d");
+ rect(px+19,py+7,3,3,"#17202d");
+ text(name,px-4,py-3);
+}
+function drawBuilding(b){
+ let x=b.x*T,y=b.y*T;
+ rect(x,y,b.w*T,b.h*T,"#28354a");
+ rect(x+3,y+3,b.w*T-6,b.h*T-6,b.color);
+ rect(x+10,y+10,b.w*T-20,b.h*T-20,"#35475e");
+ rect(x+b.w*T/2-8,y+b.h*T-24,16,24,"#49372d");
+ text(b.name,x+3,y-4);
+}
 function render(){
- ctx.clearRect(0,0,innerWidth,innerHeight);
- LIVE_FAMILY_GRAPHICS.draw(ctx,game,innerWidth,innerHeight);
- requestAnimationFrame(render);
-}
-
-resize();
-addEventListener('resize',resize);
-render();
-
-function move(dx,dy){
- game.player.x=Math.max(18,Math.min(innerWidth-18,game.player.x+dx));
- game.player.y=Math.max(90,Math.min(innerHeight-20,game.player.y+dy));
- game.anim='walk';
- setTimeout(()=>game.anim='idle',180);
-}
-
-const dirs={
- up:[0,-18],
- down:[0,18],
- left:[-18,0],
- right:[18,0]
-};
-
-Object.entries(dirs).forEach(([id,v])=>{
- let b=document.getElementById(id);
- b.addEventListener('pointerdown',e=>{
-  e.preventDefault();
-  move(...v);
- });
-});
-
-addEventListener('keydown',e=>{
- let k={
-  ArrowUp:'up',w:'up',
-  ArrowDown:'down',s:'down',
-  ArrowLeft:'left',a:'left',
-  ArrowRight:'right',d:'right'
- }[e.key];
-
- if(k)move(...dirs[k]);
-});
-
-const toast=t=>{
- let el=document.getElementById('toast');
- el.textContent=t;
- el.style.display='block';
- clearTimeout(window.toastTimer);
- window.toastTimer=setTimeout(()=>{
-  el.style.display='none';
- },1700);
-};
-
-const actions=document.getElementById('actions');
-
-document.getElementById('actionToggle').onclick=()=>{
- actions.style.display=
- actions.style.display==='grid'?'none':'grid';
-};
-
-document.getElementById('close').onclick=()=>{
- actions.style.display='none';
-};
-
-document.getElementById('menuBtn').onclick=()=>{
- toast('День '+game.day+' · $'+game.money+' · Энергия '+game.energy);
-};
-
-const messages={
- talk:'Ты начал разговор с жителем.',
- hello:'Ты поздоровался с жителем.',
- sit:'Персонаж присел отдохнуть.',
- rest:'Ты отдохнул. Энергия восстановлена.',
- eat:'Ты перекусил.',
- work:'Рабочая смена завершена. +$100.',
- shop:'Ты зашёл в магазин.',
- home:'Ты вернулся домой.',
- dance:'Персонаж танцует!',
- phone:'Ты проверил телефон.',
- pet:'Питомец рад вниманию.',
- sleep:'Ты поспал. Начался новый день.'
-};
-
-document.querySelectorAll('[data-act]').forEach(b=>{
- b.onclick=()=>{
-  let a=b.dataset.act;
-
-  if(a==='work')game.money+=100;
-
-  if(a==='rest')
-   game.energy=Math.min(100,game.energy+25);
-
-  if(a==='eat'){
-   if(game.food>0){
-    game.food--;
-    game.energy=Math.min(100,game.energy+15);
-   }else{
-    toast('Нет еды');
-    return;
+ rect(0,0,W,H,"#79a96b");
+ for(let y=0;y<13;y++){
+  for(let x=0;x<20;x++){
+   if(map[y][x]===1)rect(x*T,y*T,T,T,"#626e76");
+   else if(map[y][x]===2)rect(x*T,y*T,T,T,"#426d42");
+   else{
+    rect(x*T,y*T,T,T,"#79a96b");
+    if((x*7+y*13)%9===0)rect(x*T+13,y*T+13,3,3,"#5e9657");
    }
   }
+ }
+ for(let i=0;i<12;i++){
+  let x=(i*53+30)%620,y=(i*71+25)%390;
+  rect(x,y,7,7,"#397343");rect(x+2,y-5,4,5,"#5c9c4e");
+ }
+ buildings.forEach(drawBuilding);
+ drawPerson(partner.x,partner.y,"#ce789d",partner.name);
+ drawPerson(player.x,player.y,driving?"#4b9bd1":"#428bd1",player.name);
+ if(car) {
+  rect(420,300,65,29,"#c23c42");
+  rect(430,294,35,10,"#9ed5e8");
+  rect(430,325,12,9,"#20242d");
+  rect(469,325,12,9,"#20242d");
+ }
+ requestAnimationFrame(render);
+}
+render();
 
-  if(a==='sleep'){
-   game.day++;
-   game.energy=100;
-  }
-
-  game.anim=a;
-  toast(messages[a]);
-
-  document.getElementById('stats').textContent=
-  'День '+game.day+' · $'+game.money;
-
-  actions.style.display='none';
- };
+function updateUI(){
+ document.getElementById("money").textContent="💰 "+money+" ₸";
+ document.getElementById("clock").textContent=String(hour).padStart(2,"0")+":"+String(minute).padStart(2,"0");
+ ["hunger","thirst","energy","mood"].forEach((id,i)=>{
+  let v=[hunger,thirst,energy,mood][i];
+  document.getElementById(id).style.width=Math.max(0,v)+"%";
+ });
+}
+function advance(minutes=30){
+ minute+=minutes;
+ while(minute>=60){minute-=60;hour++}
+ if(hour>=24){hour=0;day++}
+ hunger=Math.max(0,hunger-minutes/60*1.1);
+ thirst=Math.max(0,thirst-minutes/60*1.5);
+ energy=Math.max(0,energy-minutes/60*.6);
+ if(hunger<20||thirst<20)mood=Math.max(0,mood-2);
+ updateUI();
+}
+function move(dx,dy){
+ let nx=player.x+dx,ny=player.y+dy;
+ if(nx<1||nx>18||ny<1||ny>11)return;
+ player.x=nx;player.y=ny;
+ advance(5);
+ updateUI();
+}
+document.addEventListener("keydown",e=>{
+ if(e.key==="ArrowUp")move(0,-1);
+ if(e.key==="ArrowDown")move(0,1);
+ if(e.key==="ArrowLeft")move(-1,0);
+ if(e.key==="ArrowRight")move(1,0);
 });
-})();
-</script>
 
+function near(x,y){return Math.abs(player.x-x)<=3&&Math.abs(player.y-y)<=3}
+function startGame(){
+ player.name=document.getElementById("playerName").value||"Алекс";
+ player.gender=document.getElementById("gender").value;
+ document.getElementById("modal").classList.add("hidden");
+ started=true;
+ log("Привет, "+player.name+"! Твой город ждёт тебя.");
+ saveGame();updateUI();
+}
+function eat(){
+ if(inventory<=0){log("Нет еды. Загляни в магазин.");return}
+ inventory--;hunger=Math.min(100,hunger+35);mood=Math.min(100,mood+5);
+ advance(10);log("Ты поел. Голод уменьшился.");updateUI();
+}
+function drink(){
+ thirst=Math.min(100,thirst+35);advance(3);
+ log("Ты выпил воды.");updateUI();
+}
+function sleep(){
+ energy=100;hunger=Math.max(0,hunger-8);thirst=Math.max(0,thirst-10);
+ advance(480);log("Ты хорошо отдохнул. Наступил новый день.");updateUI();
+}
+function work(){
+ if(!near(17,14)){log("Подойди к зданию РАБОТА.");return}
+ if(energy<20){log("Ты слишком устал. Сначала отдохни.");return}
+ money+=500;energy-=20;hunger-=10;advance(120);
+ log("Рабочий день завершён. Зарплата: 500 ₸.");updateUI();
+}
+function shop(){
+ if(!near(4,4)){log("Подойди к магазину.");return}
+ if(money<300){log("Недостаточно денег.");return}
+ money-=300;inventory++;advance(10);
+ log("Куплены продукты. В инвентаре: "+inventory);updateUI();
+}
+function buyHouse(){
+ if(house){log("У тебя уже есть дом.");return}
+ if(money<5000){log("Дом стоит 5000 ₸. Нужно накопить.");return}
+ money-=5000;house=true;log("Поздравляем! Ты купил дом.");updateUI();
+}
+function buyCar(){
+ if(car){log("У тебя уже есть машина.");return}
+ if(money<3000){log("Машина стоит 3000 ₸.");return}
+ money-=3000;car=true;log("Ты купил автомобиль!");updateUI();
+}
+function drive(){
+ if(!car){log("Сначала купи машину.");return}
+ driving=!driving;advance(15);
+ log(driving?"Ты сел в автомобиль.":"Ты вышел из автомобиля.");
+}
+function interact(){
+ if(near(partner.x,partner.y)){
+  log(partner.name+": Привет! Как прошёл твой день?");
+  mood=Math.min(100,mood+8);advance(5);updateUI();
+ }else log("Рядом пока никого нет. Найди другого персонажа.");
+}
+function romance(){
+ if(!near(partner.x,partner.y)){log("Подойди к "+partner.name+".");return}
+ let choice=prompt("Выбери действие: цветы, комплимент, объятие, поцелуй");
+ if(!choice)return;
+ let a=choice.toLowerCase();
+ if(["цветы","комплимент","объятие","поцелуй"].includes(a)){
+  if(a==="цветы"&&money<100){log("На цветы нужно 100 ₸.");return}
+  if(a==="цветы")money-=100;
+  partner.relationship=Math.min(100,partner.relationship+10);
+  mood=Math.min(100,mood+10);
+  log(partner.name+" рада твоему вниманию. Отношения: "+partner.relationship+"%");
+ }else log("Такого действия нет.");
+ updateUI();
+}
+function family(){
+ if(partner.relationship<30){log("Сначала укрепите отношения и доверие.");return}
+ if(confirm("Создать семейную пару в игре?")){
+  partner.relationship=Math.min(100,partner.relationship+10);
+  log("Вы стали семьёй! Теперь доступны семейные события.");
+ }
+}
+function pregnancy(){
+ if(player.gender!=="Женщина"&&partner.relationship<30){
+  log("Для семейной системы сначала нужно создать семью.");return
+ }
+ if(!pregnant&&!baby){
+  if(!confirm("Начать игровое событие беременности?"))return;
+  pregnant=true;month=1;
+  log("Беременность началась. Первый игровой месяц.");
+ }else if(pregnant){
+  log("Беременность: месяц "+month+" из 9. Следи за самочувствием и посещай врача.");
+ }else log("У вас уже есть ребёнок.");
+}
+function doctor(){
+ if(!near(17,4)){log("Подойди к больнице.");return}
+ if(pregnant){
+  log("Врач провёл осмотр. Сердцебиение малыша прослушано. Всё спокойно.");
+  advance(30);
+ }else log("Врач: осмотр завершён. Береги своё здоровье.");
+}
+function babyCare(){
+ if(!baby){log("Ребёнок ещё не родился.");return}
+ log("Ты заботишься о "+babyName+". Малыш доволен!");
+ mood=Math.min(100,mood+10);updateUI();
+}
+function nextMonth(){
+ if(!pregnant)return;
+ month++;
+ if(month>=9){
+  pregnant=false;baby=true;
+  babyName=prompt("Как назвать малыша?")||"Малыш";
+  log("Поздравляем! Родился малыш: "+babyName+" ❤️");
+ }else log("Начался "+month+" месяц беременности.");
+}
+function saveGame(){
+ let data={player,partner,money,car,house,hunger,thirst,energy,mood,pregnant,month,baby,babyName,inventory,day,hour,minute};
+ localStorage.setItem("liveFamilySave",JSON.stringify(data));
+ log("Игра сохранена на этом устройстве.");
+}
+function loadGame(){
+ let raw=localStorage.getItem("liveFamilySave");
+ if(!raw){log("Сохранение не найдено.");return}
+ try{
+  let d=JSON.parse(raw);
+  Object.assign(window,{});
+  player=d.player;partner=d.partner;money=d.money;car=d.car;house=d.house;
+  hunger=d.hunger;thirst=d.thirst;energy=d.energy;mood=d.mood;
+  pregnant=d.pregnant;month=d.month;baby=d.baby;babyName=d.babyName;
+  inventory=d.inventory;day=d.day;hour=d.hour;minute=d.minute;
+  updateUI();log("Сохранение загружено!");
+ }catch(e){log("Ошибка загрузки сохранения.")}
+}
+function resetGame(){
+ if(!confirm("Начать новую игру? Старое сохранение останется до перезаписи."))return;
+ localStorage.removeItem("liveFamilySave");
+ location.reload();
+}
+updateUI();
+setInterval(()=>{
+ if(pregnant&&hour===0&&minute===0){
+  nextMonth();
+ }
+ advance(1);
+},1000);
+</script>
 </body>
 </html>
